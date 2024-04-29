@@ -1,19 +1,21 @@
 import express from "express";
 import { DBConnect } from "./db/setup";
+import { projectRoute } from "./routes/project-route";
 
 const PORT = 3000;
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-app.get("/", (_, res) => res.send("Hello world"));
+app.use("/project", projectRoute);
 
 app.listen(PORT, async () => {
 	try {
 		await DBConnect();
+		console.log(`Listening at http://localhost:${PORT}`);
 	} catch (err) {
-		console.log("An error occurred when connecting to the database");
-		console.error(err);
+		console.error("An error occurred when connecting to the database", err);
 		process.exit(1);
 	}
-	console.log(`Listening at http://localhost:${PORT}`);
 });
