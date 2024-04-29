@@ -72,3 +72,10 @@ export function applyStatus<
 		next();
 	};
 }
+
+export function validateDate(v: Date, from: Date, after: number) {
+	const nextDay = new Date();
+	nextDay.setDate(from.getDate() + after);
+	nextDay.setHours(0, 0, 0, 0);
+	return v === null || v >= nextDay;
+}
