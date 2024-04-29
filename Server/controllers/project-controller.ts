@@ -2,7 +2,7 @@ import { type Handler, type Request } from "express";
 import type { ResponsePayload } from "./response";
 import { ProjectModel } from "../models/project-model";
 
-export const findAllProject: Handler = (_, res) => {
+export const findAllProject: Handler = (_, res, next) => {
 	ProjectModel.find({})
 		.then((projects) => {
 			const payload: ResponsePayload = {
@@ -13,25 +13,13 @@ export const findAllProject: Handler = (_, res) => {
 
 			res.json(payload);
 		})
-		.catch((err) => {
-			const message =
-				"an internal error has occurred when finding all projects";
-
-			console.error(message, err);
-
-			const payload: ResponsePayload = {
-				status: "fail",
-				message: message,
-				data: null,
-			};
-
-			res.status(500).json(payload);
-		});
+		.catch(next);
 };
 
 export const findProjectByID: Handler = (
 	req: Request<{ id?: string }>,
 	res,
+	next,
 ) => {
 	const id = req.params.id;
 
@@ -65,22 +53,10 @@ export const findProjectByID: Handler = (
 
 			res.json(payload);
 		})
-		.catch((err) => {
-			const message = `an internal error has occurred when finding project with id ${id}`;
-
-			console.error(message, err);
-
-			const payload: ResponsePayload = {
-				status: "fail",
-				message,
-				data: null,
-			};
-
-			res.status(500).json(payload);
-		});
+		.catch(next);
 };
 
-export const createProject: Handler = (req, res) => {
+export const createProject: Handler = (req, res, next) => {
 	ProjectModel.create(req.body)
 		.then((project) => {
 			const payload: ResponsePayload = {
@@ -91,19 +67,7 @@ export const createProject: Handler = (req, res) => {
 
 			res.status(201).json(payload);
 		})
-		.catch((err) => {
-			const message = "an internal error has occurred when creating a project";
-
-			console.error(message, err);
-
-			const payload: ResponsePayload = {
-				status: "fail",
-				message,
-				data: null,
-			};
-
-			res.status(500).json(payload);
-		});
+		.catch(next);
 };
 
 export const updateProject: Handler = (req: Request<{ id?: string }>, res) => {
@@ -143,6 +107,7 @@ export const updateProject: Handler = (req: Request<{ id?: string }>, res) => {
 export const deleteProjectByID: Handler = (
 	req: Request<{ id?: string }>,
 	res,
+	next,
 ) => {
 	const id = req.params.id;
 
@@ -176,17 +141,5 @@ export const deleteProjectByID: Handler = (
 
 			res.json(payload);
 		})
-		.catch((err) => {
-			const message = `an internal error has occurred when deleting project with id ${id}`;
-
-			console.error(message, err);
-
-			const payload: ResponsePayload = {
-				status: "fail",
-				message: message,
-				data: null,
-			};
-
-			res.status(500).json(payload);
-		});
+		.catch(next);
 };

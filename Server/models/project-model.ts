@@ -1,14 +1,14 @@
 import { Schema, model, Document } from "mongoose";
-import { applyCreatedAt, applyID, applyStatus } from "./utils";
+import { applyCreatedAt, applyID, applyStatus, validateDate } from "./utils";
 import { TaskModel } from "./task-model";
 
 interface Project extends Document {
 	id: string;
 	name: string;
-	desciption?: string;
+	description?: string;
 	status: "new" | "on going" | "finish";
 	estimated_finish?: Date;
-	team_size?: number;
+	team_size: number;
 	created_at: Date;
 }
 
@@ -22,8 +22,9 @@ const ProjectSchema = new Schema<Project>({
 	name: {
 		type: String,
 		required: true,
+		minlength: 5,
 	},
-	desciption: { type: String },
+	description: { type: String },
 	status: {
 		type: String,
 		validate: {
@@ -32,8 +33,15 @@ const ProjectSchema = new Schema<Project>({
 			},
 		},
 	},
-	estimated_finish: { type: Date },
-	team_size: { type: Number },
+	estimated_finish: {
+		type: Date,
+		validate: {
+			validator: function (v: Date) {
+				return validateDate(v, new Date(), 1);
+			},
+		},
+	},
+	team_size: { type: Number, min: 1, default: 1 },
 	created_at: {
 		type: Date,
 		immutable: true,

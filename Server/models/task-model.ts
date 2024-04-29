@@ -1,6 +1,6 @@
 import { Document, Schema, model } from "mongoose";
 import { ProjectModel } from "./project-model";
-import { applyCreatedAt, applyID, applyStatus } from "./utils";
+import { applyCreatedAt, applyID, applyStatus, validateDate } from "./utils";
 
 interface Task extends Document {
 	id: string;
@@ -32,10 +32,30 @@ const TaskSchema = new Schema<Task>({
 			},
 		},
 	},
-	name: { type: String, required: true },
+	name: { type: String, required: true, minlength: 5 },
 	description: { type: String },
-	expected_begin: { type: Date },
-	expected_finish: { type: Date },
+	expected_begin: {
+		type: Date,
+		validate: {
+			validator: function (v: Date) {
+				return validateDate(v, new Date(), 1);
+			},
+		},
+	},
+	expected_finish: {
+		type: Date,
+		validate: {
+			validator: function (this: Task, v: Date) {
+				const begin = this.expected_begin;
+
+				if (begin !== undefined) {
+					return validateDate(v, begin, 1);
+				}
+
+				return validateDate(v, new Date(), 1);
+			},
+		},
+	},
 	status: {
 		type: String,
 		validate: {
@@ -47,6 +67,7 @@ const TaskSchema = new Schema<Task>({
 		type: Number,
 		required: true,
 		default: 0,
+		min: 0,
 	},
 	created_at: {
 		type: Date,
