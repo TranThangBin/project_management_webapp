@@ -72,25 +72,3 @@ export function applyStatus<
 		next();
 	};
 }
-
-export function validateDate(
-	v: Date | null,
-	after: (fromDate: number) => number,
-	from = new Date(),
-	before = false,
-) {
-	if (v === null) {
-		return true;
-	}
-
-	const nextDay = new Date();
-
-	nextDay.setDate(after(from.getDate()));
-	nextDay.setHours(0, 0, 0, 0);
-
-	if (before) {
-		return v < nextDay;
-	}
-
-	return v >= nextDay;
-}

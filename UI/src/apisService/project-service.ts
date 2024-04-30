@@ -31,3 +31,27 @@ export async function createNewProject(project: Project) {
 
 	return data as ResponsePayload<Project | null>;
 }
+
+export async function deleteProject(id: string) {
+	const res = await fetch(`http://localhost:3000/project/${id}`, {
+		method: "DELETE",
+	});
+
+	const data = await res.json();
+
+	return data as ResponsePayload<Project | null>;
+}
+
+export async function updateProject(id: string, project: Project) {
+	const res = await fetch(`http://localhost:3000/project/${id}`, {
+		method: "PATCH",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(project),
+	});
+
+	const data = await res.json();
+
+	return data as ResponsePayload<Project | null>;
+}

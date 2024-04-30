@@ -44,66 +44,139 @@
           <button type="button" title="add project" id="btn-open-form">
             <i class="fa-solid fa-plus"></i>
           </button>
-          <dialog id="project-form" class="rounded-xl">
-            <form id="new-project" class="flex flex-col gap-2 bg-white p-4">
-              <label>
-                Project Name
-                <input
-                  type="text"
-                  autocomplete="on"
-                  name="name"
-                  id="name"
-                  class="w-full rounded-lg border border-gray-500 p-2 outline-0"
-                />
-              </label>
 
-              <label>
-                Description
-                <input
-                  type="text"
-                  name="description"
-                  id="description"
-                  class="w-full rounded-lg border border-gray-500 p-2 outline-0"
-                />
-              </label>
+          <dialog id="create-project" class="rounded-xl">
+            <div class="bg-white p-4">
+              <h2 class="text-center text-4xl text-purple-600">
+                Create Project
+              </h2>
+              <form id="form-create-project" class="flex flex-col gap-2">
+                <label>
+                  Project Name
+                  <input
+                    type="text"
+                    autocomplete="on"
+                    name="name"
+                    id="name"
+                    class="w-full rounded-lg border border-gray-500 p-2 outline-0"
+                  />
+                </label>
 
-              <label>
-                Estimated Finish
-                <input
-                  type="date"
-                  name="estimated_finish"
-                  id="estimated_finish"
-                  class="w-full rounded-lg border border-gray-500 p-2 outline-0"
-                />
-              </label>
+                <label>
+                  Description
+                  <input
+                    type="text"
+                    name="description"
+                    id="description"
+                    class="w-full rounded-lg border border-gray-500 p-2 outline-0"
+                  />
+                </label>
 
-              <label>
-                Team Size
-                <input
-                  type="number"
-                  name="team_size"
-                  id="team_size"
-                  class="w-full rounded-lg border border-gray-500 p-2 outline-0"
-                />
-              </label>
+                <label>
+                  Estimated Finish
+                  <input
+                    type="date"
+                    name="estimated_finish"
+                    id="estimated_finish"
+                    class="w-full rounded-lg border border-gray-500 p-2 outline-0"
+                  />
+                </label>
 
-              <button
-                type="submit"
-                title="submit project"
-                class="rounded-lg bg-green-400 p-2 text-white"
-              >
-                Add Project
-              </button>
+                <label>
+                  Team Size
+                  <input
+                    type="number"
+                    name="team_size"
+                    id="team_size"
+                    class="w-full rounded-lg border border-gray-500 p-2 outline-0"
+                  />
+                </label>
 
-              <button
-                type="button"
-                title="close form"
-                id="btn-close-form"
-                class="rounded-lg bg-red-400 p-2 text-white"
-              >
-                Close Form
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  title="submit project"
+                  class="rounded-lg bg-green-400 p-2 text-white"
+                >
+                  Create
+                </button>
+
+                <button
+                  type="button"
+                  title="close form"
+                  id="btn-close-createform"
+                  class="rounded-lg bg-red-400 p-2 text-white"
+                >
+                  Close Form
+                </button>
+              </form>
+            </div>
+          </dialog>
+
+          <dialog id="update-project" class="rounded-xl">
+            <div class="bg-white p-4">
+              <h2 class="text-center text-4xl text-purple-600">
+                Update Project
+              </h2>
+              <form id="form-update-project" class="flex flex-col gap-2">
+                <label>
+                  Project Name
+                  <input
+                    type="text"
+                    autocomplete="on"
+                    name="name"
+                    id="name"
+                    class="w-full rounded-lg border border-gray-500 p-2 outline-0"
+                  />
+                </label>
+
+                <label>
+                  Description
+                  <input
+                    type="text"
+                    name="description"
+                    id="description"
+                    class="w-full rounded-lg border border-gray-500 p-2 outline-0"
+                  />
+                </label>
+
+                <label>
+                  Estimated Finish
+                  <input
+                    type="date"
+                    name="estimated_finish"
+                    id="estimated_finish"
+                    class="w-full rounded-lg border border-gray-500 p-2 outline-0"
+                  />
+                </label>
+
+                <label>
+                  Team Size
+                  <input
+                    type="number"
+                    name="team_size"
+                    id="team_size"
+                    class="w-full rounded-lg border border-gray-500 p-2 outline-0"
+                  />
+                </label>
+
+                <button
+                  type="submit"
+                  title="submit project"
+                  class="rounded-lg bg-green-400 p-2 text-white"
+                >
+                  Update
+                </button>
+
+                <button
+                  type="button"
+                  title="close form"
+                  id="btn-close-updateform"
+                  class="rounded-lg bg-red-400 p-2 text-white"
+                >
+                  Close Form
+                </button>
+              </form>
+            </div>
           </dialog>
         </div>
         <hr class="border-black" />
@@ -139,8 +212,14 @@
     >
       Copyright (c) 2024
       <span
-        class="flex justify-center before:content-['Team_Accel-Trial'] after:absolute after:text-transparent after:transition-colors after:content-['Maximum_Drive'] hover:text-red-400 hover:before:text-transparent hover:after:text-orange-400"
-      ></span>
+        class="group flex items-center transition-colors hover:text-orange-400"
+      >
+        <i class="fa-solid fa-gauge mx-1"></i>
+        <span
+          class="flex justify-center before:content-['Team_Accel-Trial'] after:absolute after:text-transparent after:transition-colors after:content-['Maximum_Drive'] hover:text-red-400 group-hover:before:text-transparent group-hover:after:text-orange-400"
+        ></span>
+        <i class="fa-solid fa-parachute-box mx-1"></i>
+      </span>
       . All Rights Reserved.
     </footer>
   </body>

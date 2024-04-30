@@ -10,28 +10,14 @@ interface Project extends Document {
 	estimated_finish?: Date;
 	team_size: number;
 	created_at: Date;
+	updated_at: Date;
 }
 
 const ProjectSchema = new Schema<Project>({
-	id: {
-		type: String,
-		immutable: true,
-		unique: true,
-		index: true,
-	},
-	name: {
-		type: String,
-		required: true,
-		minlength: 5,
-	},
-	description: { type: String },
-	status: {
-		type: String,
-		validate: {
-			validator: (v: string) =>
-				v === "new" || v === "on going" || v === "finish",
-		},
-	},
+	id: { type: String, immutable: true, unique: true, index: true },
+	name: { type: String, required: true, minlength: 5, trim: true },
+	description: { type: String, trim: true },
+	status: { type: String, enum: ["on going", "new", "finish"] },
 	estimated_finish: { type: Date },
 	team_size: { type: Number, min: 1, default: 1 },
 	created_at: { type: Date, immutable: true },

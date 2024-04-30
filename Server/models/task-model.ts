@@ -1,6 +1,6 @@
 import { Document, Schema, model } from "mongoose";
 import { ProjectModel } from "./project-model";
-import { applyCreatedAt, applyID, applyStatus, validateDate } from "./utils";
+import { applyCreatedAt, applyID, applyStatus } from "./utils";
 
 interface Task extends Document {
 	id: string;
@@ -15,12 +15,14 @@ interface Task extends Document {
 }
 
 const TaskSchema = new Schema<Task>({
-	id: {
-		type: String,
-		immutable: true,
-		unique: true,
-		index: true,
-	},
+	id: { type: String, immutable: true, unique: true, index: true },
+	name: { type: String, required: true, minlength: 5 },
+	description: { type: String },
+	expected_begin: { type: Date },
+	expected_finish: { type: Date },
+	status: { type: String, enum: ["on going", "new", "finish"] },
+	priority_level: { type: Number, required: true, default: 0, min: 0 },
+	created_at: { type: Date, immutable: true },
 	project_id: {
 		type: String,
 		required: true,
@@ -32,28 +34,24 @@ const TaskSchema = new Schema<Task>({
 			},
 		},
 	},
-	name: { type: String, required: true, minlength: 5 },
-	description: { type: String },
-	expected_begin: { type: Date },
-	expected_finish: { type: Date },
-	status: {
-		type: String,
-		validate: {
-			validator: (v: string) =>
-				v === "new" || v === "on going" || v === "finish",
-		},
-	},
-	priority_level: {
-		type: Number,
-		required: true,
-		default: 0,
-		min: 0,
-	},
-	created_at: { type: Date, immutable: true },
 });
 
 TaskSchema.pre("save", applyID<Task>("TSK"));
 TaskSchema.pre("save", applyCreatedAt<Task>());
 TaskSchema.pre("save", applyStatus<Task>());
+TaskSchema.pre("save", function (next) {
+	ProjectModel.findOne({ id: this.project_id })
+		.then((project) => {
+			if (project?.status === "new") {
+				ProjectModel.updateOne(
+					{ id: this.project_id },
+					{ $set: { status: "on going" } },
+				)
+					.then(() => next())
+					.catch(next);
+			}
+		})
+		.catch(next);
+});
 
 export const TaskModel = model<Task>("task", TaskSchema);

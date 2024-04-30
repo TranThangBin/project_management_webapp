@@ -2,6 +2,25 @@ import { type Handler, type Request } from "express";
 import type { ResponsePayload } from "./response";
 import { TaskModel } from "../models/task-model";
 
+export const findAllTask: Handler = (
+	req: Request<{ project_id?: string }>,
+	res,
+	next,
+) => {
+	const project_id = req.params.project_id;
+
+	TaskModel.find({ project_id })
+		.then((tasks) => {
+			const payload: ResponsePayload = {
+				status: "ok",
+				message: `list of tasks for project ${project_id} was retrieved successfully`,
+				data: tasks,
+			};
+			res.json(payload);
+		})
+		.catch(next);
+};
+
 export const findTaskById: Handler = (
 	req: Request<{ project_id?: string; task_id?: string }>,
 	res,
@@ -27,25 +46,6 @@ export const findTaskById: Handler = (
 				data: task,
 			};
 
-			res.json(payload);
-		})
-		.catch(next);
-};
-
-export const findAllTask: Handler = (
-	req: Request<{ project_id?: string }>,
-	res,
-	next,
-) => {
-	const project_id = req.params.project_id;
-
-	TaskModel.find({ project_id })
-		.then((tasks) => {
-			const payload: ResponsePayload = {
-				status: "ok",
-				message: `list of tasks for project ${project_id} was retrieved successfully`,
-				data: tasks,
-			};
 			res.json(payload);
 		})
 		.catch(next);
