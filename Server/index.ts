@@ -3,7 +3,6 @@ import cors from "cors";
 import { DBConnect } from "./db/setup";
 import { projectRoute } from "./routes/project-route";
 import { errorHandler } from "./controllers/error-handler";
-import { taskRoute } from "./routes/task-route";
 
 const PORT = 3000;
 
@@ -14,7 +13,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/project", projectRoute);
-app.use("/task", taskRoute);
 
 app.use(errorHandler);
 

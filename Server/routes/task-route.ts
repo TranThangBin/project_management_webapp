@@ -1,15 +1,17 @@
 import { Router } from "express";
 
 import {
-    findAllTasksForProject,
-    createTask,
-    updateTask,
-    deleteTaskByID,
+	findAllTask,
+	createTask,
+	updateTask,
+	deleteTaskByID,
+	findTaskById,
 } from "../controllers/task-controller";
 
-export const taskRoute = Router();
+export const taskRoute = Router({ mergeParams: true });
 
-taskRoute.get("/all", findAllTasksForProject);
+taskRoute.get("/all", findAllTask);
+taskRoute.get("/:task_id", findTaskById);
 taskRoute.post("/new", createTask);
-taskRoute.patch("/:id", updateTask);
-taskRoute.delete("/:id", deleteTaskByID);
+taskRoute.patch("/:task_id", updateTask);
+taskRoute.delete("/:task_id", deleteTaskByID);

@@ -17,21 +17,11 @@ export const findAllProject: Handler = (_, res, next) => {
 };
 
 export const findProjectByID: Handler = (
-	req: Request<{ id?: string }>,
+	req: Request<{ project_id?: string }>,
 	res,
 	next,
 ) => {
-	const id = req.params.id;
-
-	if (id === undefined) {
-		const payload: ResponsePayload = {
-			status: "fail",
-			message: "missing request param id",
-			data: null,
-		};
-
-		return res.status(400).json(payload);
-	}
+	const id = req.params.project_id;
 
 	ProjectModel.findOne({ id })
 		.then((project) => {
@@ -70,56 +60,46 @@ export const createProject: Handler = (req, res, next) => {
 		.catch(next);
 };
 
-export const updateProject: Handler = (req: Request<{ id?: string }>, res) => {
-	const id = req.params.id;
-
-	if (id === undefined) {
-		const payload: ResponsePayload = {
-			status: "fail",
-			message: "missing request param id",
-			data: null,
-		};
-
-		return res.status(400).json(payload);
-	}
-
-	ProjectModel.findOneAndUpdate({ id }, { $set: req.body }).then((project) => {
-		if (project === null) {
-			const payload: ResponsePayload = {
-				status: "fail",
-				message: `there are no project with id ${id}`,
-				data: null,
-			};
-
-			return res.status(404).json(payload);
-		}
-
-		const payload: ResponsePayload = {
-			status: "ok",
-			message: `successfully update project with id ${id}`,
-			data: project,
-		};
-
-		res.json(payload);
-	});
-};
-
-export const deleteProjectByID: Handler = (
-	req: Request<{ id?: string }>,
+export const updateProject: Handler = (
+	req: Request<{ project_id?: string }>,
 	res,
 	next,
 ) => {
-	const id = req.params.id;
+	const id = req.params.project_id;
 
-	if (id === undefined) {
-		const payload: ResponsePayload = {
-			status: "fail",
-			message: "missing request param id",
-			data: null,
-		};
+	ProjectModel.findOneAndUpdate(
+		{ id },
+		{ $set: req.body },
+		{ runValidators: true, new: true },
+	)
+		.then((project) => {
+			if (project === null) {
+				const payload: ResponsePayload = {
+					status: "fail",
+					message: `there are no project with id ${id}`,
+					data: null,
+				};
 
-		return res.status(400).json(payload);
-	}
+				return res.status(404).json(payload);
+			}
+
+			const payload: ResponsePayload = {
+				status: "ok",
+				message: `successfully update project with id ${id}`,
+				data: project,
+			};
+
+			res.json(payload);
+		})
+		.catch(next);
+};
+
+export const deleteProjectByID: Handler = (
+	req: Request<{ project_id?: string }>,
+	res,
+	next,
+) => {
+	const id = req.params.project_id;
 
 	ProjectModel.findOneAndDelete({ id })
 		.then((project) => {

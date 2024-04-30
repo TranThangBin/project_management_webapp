@@ -1,5 +1,5 @@
 import { Schema, model, Document } from "mongoose";
-import { applyCreatedAt, applyID, applyStatus, validateDate } from "./utils";
+import { applyCreatedAt, applyID, applyStatus } from "./utils";
 import { TaskModel } from "./task-model";
 
 interface Project extends Document {
@@ -28,42 +28,13 @@ const ProjectSchema = new Schema<Project>({
 	status: {
 		type: String,
 		validate: {
-			validator: function (v: string) {
-				return v === "new" || v === "on going" || v === "finish";
-			},
+			validator: (v: string) =>
+				v === "new" || v === "on going" || v === "finish",
 		},
 	},
-	estimated_finish: {
-		type: Date,
-		validate: {
-			validator: async function (this: Project, v: Date) {
-				let latest = await TaskModel.findOne(
-					{ project_id: this.id },
-					{ _id: 0, expected_finish: -1 },
-				);
-
-				if (latest !== null && latest.expected_finish) {
-					return validateDate(v, (finish) => finish, latest.expected_finish);
-				}
-
-				latest = await TaskModel.findOne(
-					{ project_id: this.id },
-					{ _id: 0, expected_begin: -1 },
-				);
-
-				if (latest !== null && latest.expected_begin) {
-					return validateDate(v, (begin) => begin + 1, latest.expected_begin);
-				}
-
-				return validateDate(v, (today) => today + 1);
-			},
-		},
-	},
+	estimated_finish: { type: Date },
 	team_size: { type: Number, min: 1, default: 1 },
-	created_at: {
-		type: Date,
-		immutable: true,
-	},
+	created_at: { type: Date, immutable: true },
 });
 
 ProjectSchema.pre("save", applyID<Project>("PRJ"));
@@ -74,7 +45,7 @@ ProjectSchema.pre("findOneAndDelete", function (next) {
 
 	TaskModel.deleteMany({ project_id: filter.id })
 		.then(() => next())
-		.catch((err) => next(err));
+		.catch(next);
 });
 
 export const ProjectModel = model<Project>("project", ProjectSchema);

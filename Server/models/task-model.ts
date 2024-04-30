@@ -34,48 +34,8 @@ const TaskSchema = new Schema<Task>({
 	},
 	name: { type: String, required: true, minlength: 5 },
 	description: { type: String },
-	expected_begin: {
-		type: Date,
-		validate: {
-			validator: async function (this: Task, v: Date) {
-				const project = await ProjectModel.findOne({ id: this.project_id });
-
-				if (project !== null && project.estimated_finish) {
-					return validateDate(
-						v,
-						(fromDate) => fromDate - 1,
-						project.estimated_finish,
-					);
-				}
-
-				return validateDate(v, (today) => today + 1);
-			},
-		},
-	},
-	expected_finish: {
-		type: Date,
-		validate: {
-			validator: async function (this: Task, v: Date) {
-				const begin = this.expected_begin;
-
-				if (begin) {
-					return validateDate(v, (fromBegin) => fromBegin + 1, begin);
-				}
-
-				const project = await ProjectModel.findOne({ id: this.project_id });
-
-				if (project !== null && project.estimated_finish) {
-					return validateDate(
-						v,
-						(sameDate) => sameDate,
-						project.estimated_finish,
-					);
-				}
-
-				return validateDate(v, (today) => today + 1);
-			},
-		},
-	},
+	expected_begin: { type: Date },
+	expected_finish: { type: Date },
 	status: {
 		type: String,
 		validate: {
@@ -89,10 +49,7 @@ const TaskSchema = new Schema<Task>({
 		default: 0,
 		min: 0,
 	},
-	created_at: {
-		type: Date,
-		immutable: true,
-	},
+	created_at: { type: Date, immutable: true },
 });
 
 TaskSchema.pre("save", applyID<Task>("TSK"));

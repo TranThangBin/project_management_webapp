@@ -1,170 +1,136 @@
-import { type Handler, type Request, type Response } from "express";
+import { type Handler, type Request } from "express";
 import type { ResponsePayload } from "./response";
-import { ProjectModel } from "../models/project-model";
 import { TaskModel } from "../models/task-model";
 
-export const findAllTasksForProject: Handler = (
-    req: Request<{ Project_Id?: string }>,
-    res: Response
+export const findTaskById: Handler = (
+	req: Request<{ project_id?: string; task_id?: string }>,
+	res,
+	next,
 ) => {
-    const projectId = req.params.Project_Id;
+	const { project_id, task_id: id } = req.params;
 
-    if (!projectId) {
-        const payload: ResponsePayload = {
-            status: "fail",
-            message: "Missing project ID in the request",
-            data: null,
-        };
-        return res.status(400).json(payload);
-    }
+	TaskModel.findOne({ id, project_id })
+		.then((task) => {
+			if (task === null) {
+				const payload: ResponsePayload = {
+					status: "fail",
+					message: `there are no task with id ${id} in project ${project_id}`,
+					data: null,
+				};
 
-    ProjectModel.findById(projectId)
-        .then((project) => {
-            if (!project) {
-                const payload: ResponsePayload = {
-                    status: "fail",
-                    message: "Project not found",
-                    data: null,
-                };
-                return res.status(404).json(payload);
-            }
+				return res.status(404).json(payload);
+			}
 
-            TaskModel.find({ projectId })
-                .then((tasks) => {
-                    const payload: ResponsePayload = {
-                        status: "ok",
-                        message:
-                            "List of tasks for the project retrieved successfully",
-                        data: tasks,
-                    };
-                    res.json(payload);
-                })
-                .catch((err) => {
-                    console.error("Error retrieving tasks for project: ", err);
-                    const payload: ResponsePayload = {
-                        status: "fail",
-                        message:
-                            "An internal error occurred when retrieving tasks for the project",
-                        data: null,
-                    };
-                    res.status(500).json(payload);
-                });
-        })
-        .catch((err) => {
-            console.error("Error finding project: ", err);
-            const payload: ResponsePayload = {
-                status: "fail",
-                message: "An internal error occurred when finding project",
-                data: null,
-            };
-            res.status(500).json(payload);
-        });
+			const payload: ResponsePayload = {
+				status: "ok",
+				message: `successfully find task with id ${id}`,
+				data: task,
+			};
+
+			res.json(payload);
+		})
+		.catch(next);
 };
 
-export const createTask: Handler = (req, res) => {
-    TaskModel.create(req.body)
-        .then((task) => {
-            const payload: ResponsePayload = {
-                status: "ok",
-                message: "Successfully create task",
-                data: task,
-            };
+export const findAllTask: Handler = (
+	req: Request<{ project_id?: string }>,
+	res,
+	next,
+) => {
+	const project_id = req.params.project_id;
 
-            res.status(201).json(payload);
-        })
-        .catch((err) => {
-            const message =
-                "an internal error has occurred when creating a task";
-
-            console.error(message, err);
-
-            const payload: ResponsePayload = {
-                status: "fail",
-                message,
-                data: null,
-            };
-
-            res.status(500).json(payload);
-        });
+	TaskModel.find({ project_id })
+		.then((tasks) => {
+			const payload: ResponsePayload = {
+				status: "ok",
+				message: `list of tasks for project ${project_id} was retrieved successfully`,
+				data: tasks,
+			};
+			res.json(payload);
+		})
+		.catch(next);
 };
 
-export const updateTask: Handler = (req: Request<{ id?: string }>, res) => {
-    const id = req.params.id;
+export const createTask: Handler = (
+	req: Request<{ project_id?: string }>,
+	res,
+	next,
+) => {
+	const project_id = req.params.project_id;
 
-    if (id === undefined) {
-        const payload: ResponsePayload = {
-            status: "fail",
-            message: "missing request param id",
-            data: null,
-        };
+	TaskModel.create({ project_id, ...req.body })
+		.then((task) => {
+			const payload: ResponsePayload = {
+				status: "ok",
+				message: `successfully create task for project ${task.project_id}`,
+				data: task,
+			};
 
-        return res.status(400).json(payload);
-    }
-    TaskModel.findOneAndUpdate({ id }, { $set: req.body }).then((task) => {
-        if (task === null) {
-            const payload: ResponsePayload = {
-                status: "fail",
-                message: `there are no task with id ${id}`,
-                data: null,
-            };
-
-            return res.status(404).json(payload);
-        }
-
-        const payload: ResponsePayload = {
-            status: "ok",
-            message: `successfully update task with id ${id}`,
-            data: task,
-        };
-
-        res.json(payload);
-    });
+			res.status(201).json(payload);
+		})
+		.catch(next);
 };
 
-export const deleteTaskByID: Handler = (req: Request<{ id?: string }>, res) => {
-    const id = req.params.id;
+export const updateTask: Handler = (
+	req: Request<{ project_id?: string; task_id?: string }>,
+	res,
+	next,
+) => {
+	const { project_id, task_id: id } = req.params;
 
-    if (id === undefined) {
-        const payload: ResponsePayload = {
-            status: "fail",
-            message: "missing request param id",
-            data: null,
-        };
+	TaskModel.findOneAndUpdate(
+		{ project_id, id },
+		{ $set: req.body },
+		{ runValidators: true, new: true },
+	)
+		.then((task) => {
+			if (task === null) {
+				const payload: ResponsePayload = {
+					status: "fail",
+					message: `there are no task with id ${id}`,
+					data: null,
+				};
 
-        return res.status(400).json(payload);
-    }
+				return res.status(404).json(payload);
+			}
 
-    TaskModel.findOneAndDelete({ id })
-        .then((task) => {
-            if (task === null) {
-                const payload: ResponsePayload = {
-                    status: "fail",
-                    message: `there are no task with id ${id}`,
-                    data: null,
-                };
+			const payload: ResponsePayload = {
+				status: "ok",
+				message: `successfully update task with id ${id}`,
+				data: task,
+			};
 
-                return res.status(404).json(payload);
-            }
+			res.json(payload);
+		})
+		.catch(next);
+};
 
-            const payload: ResponsePayload = {
-                status: "ok",
-                message: `successfully delete task with id ${id}`,
-                data: task,
-            };
+export const deleteTaskByID: Handler = (
+	req: Request<{ project_id?: string; task_id?: string }>,
+	res,
+	next,
+) => {
+	const { project_id, task_id: id } = req.params;
 
-            res.json(payload);
-        })
-        .catch((err) => {
-            const message = `an internal error has occurred when deleting task with id ${id}`;
+	TaskModel.findOneAndDelete({ project_id, id })
+		.then((task) => {
+			if (task === null) {
+				const payload: ResponsePayload = {
+					status: "fail",
+					message: `there are no task with id ${id}`,
+					data: null,
+				};
 
-            console.error(message, err);
+				return res.status(404).json(payload);
+			}
 
-            const payload: ResponsePayload = {
-                status: "fail",
-                message: message,
-                data: null,
-            };
+			const payload: ResponsePayload = {
+				status: "ok",
+				message: `successfully delete task with id ${id}`,
+				data: task,
+			};
 
-            res.status(500).json(payload);
-        });
+			res.json(payload);
+		})
+		.catch(next);
 };

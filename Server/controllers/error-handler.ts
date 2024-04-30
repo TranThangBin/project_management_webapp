@@ -1,7 +1,7 @@
 import { type ErrorRequestHandler } from "express";
 import type { ResponsePayload } from "./response";
 
-export const errorHandler: ErrorRequestHandler = (err, _, res, __) => {
+export const errorHandler: ErrorRequestHandler = (err, req, res, _) => {
 	if (err.name === "ValidationError") {
 		const payload: ResponsePayload = {
 			status: "fail",
@@ -12,9 +12,10 @@ export const errorHandler: ErrorRequestHandler = (err, _, res, __) => {
 		return res.status(400).json(payload);
 	}
 
-	const message = "an internal error has occurred when handling request";
+	const message = `an internal error has occurred when handling ${req.method} ${req.path}`;
 
-	console.error(message, err);
+	console.error(message);
+	console.error(err);
 
 	const payload: ResponsePayload = {
 		status: "fail",
