@@ -64,7 +64,7 @@ interface DocumentWithStatus extends Document {
 export function applyStatus<
 	T extends DocumentWithStatus,
 >(): PreMiddlewareFunction<T> {
-	return function (next) {
+	return async function (next) {
 		if (this.isNew) {
 			this.status = "new";
 		}
@@ -77,11 +77,20 @@ export function validateDate(
 	v: Date | null,
 	after: (fromDate: number) => number,
 	from = new Date(),
+	before = false,
 ) {
+	if (v === null) {
+		return true;
+	}
+
 	const nextDay = new Date();
 
 	nextDay.setDate(after(from.getDate()));
 	nextDay.setHours(0, 0, 0, 0);
 
-	return v === null || v >= nextDay;
+	if (before) {
+		return v < nextDay;
+	}
+
+	return v >= nextDay;
 }

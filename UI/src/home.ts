@@ -103,11 +103,11 @@ formNewProject.addEventListener("submit", function (e) {
 	createNewProject(project as Project).then((payload) => {
 		if (payload.status === "ok" && payload.data !== null) {
 			addOneProject(payload.data);
-		} else {
-			alert(payload.message);
+			this.reset();
+			return projectFormDiaglog.close();
 		}
 
-		this.reset();
+		alert(payload.message);
 	});
 });
 
