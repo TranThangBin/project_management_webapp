@@ -36,8 +36,26 @@ const ProjectSchema = new Schema<Project>({
 	estimated_finish: {
 		type: Date,
 		validate: {
-			validator: function (v: Date) {
-				return validateDate(v, new Date(), 1);
+			validator: async function (this: Project, v: Date) {
+				let latest = await TaskModel.findOne(
+					{ project_id: this.id },
+					{ _id: 0, expected_finish: -1 },
+				);
+
+				if (latest !== null && latest.expected_finish) {
+					return validateDate(v, (finish) => finish, latest.expected_finish);
+				}
+
+				latest = await TaskModel.findOne(
+					{ project_id: this.id },
+					{ _id: 0, expected_begin: -1 },
+				);
+
+				if (latest !== null && latest.expected_begin) {
+					return validateDate(v, (begin) => begin + 1, latest.expected_begin);
+				}
+
+				return validateDate(v, (today) => today + 1);
 			},
 		},
 	},

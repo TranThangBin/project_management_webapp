@@ -37,22 +37,42 @@ const TaskSchema = new Schema<Task>({
 	expected_begin: {
 		type: Date,
 		validate: {
-			validator: function (v: Date) {
-				return validateDate(v, new Date(), 1);
+			validator: async function (this: Task, v: Date) {
+				const project = await ProjectModel.findOne({ id: this.project_id });
+
+				if (project !== null && project.estimated_finish) {
+					return validateDate(
+						v,
+						(fromDate) => fromDate - 1,
+						project.estimated_finish,
+					);
+				}
+
+				return validateDate(v, (today) => today + 1);
 			},
 		},
 	},
 	expected_finish: {
 		type: Date,
 		validate: {
-			validator: function (this: Task, v: Date) {
+			validator: async function (this: Task, v: Date) {
 				const begin = this.expected_begin;
 
-				if (begin !== undefined) {
-					return validateDate(v, begin, 1);
+				if (begin) {
+					return validateDate(v, (fromBegin) => fromBegin + 1, begin);
 				}
 
-				return validateDate(v, new Date(), 1);
+				const project = await ProjectModel.findOne({ id: this.project_id });
+
+				if (project !== null && project.estimated_finish) {
+					return validateDate(
+						v,
+						(sameDate) => sameDate,
+						project.estimated_finish,
+					);
+				}
+
+				return validateDate(v, (today) => today + 1);
 			},
 		},
 	},

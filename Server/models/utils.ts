@@ -73,9 +73,15 @@ export function applyStatus<
 	};
 }
 
-export function validateDate(v: Date, from: Date, after: number) {
+export function validateDate(
+	v: Date | null,
+	after: (fromDate: number) => number,
+	from = new Date(),
+) {
 	const nextDay = new Date();
-	nextDay.setDate(from.getDate() + after);
+
+	nextDay.setDate(after(from.getDate()));
 	nextDay.setHours(0, 0, 0, 0);
+
 	return v === null || v >= nextDay;
 }
