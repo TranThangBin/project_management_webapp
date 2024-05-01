@@ -64,8 +64,8 @@ formNewProject.addEventListener("submit", function (e) {
 	createNewProject(project as Project)
 		.then(({ status, data, message }) => {
 			if (status === "ok" && data !== null) {
-				addOneProject(data);
 				this.reset();
+				projectList.appendChild(addOneProject(data));
 				return newProjectDialog.close();
 			}
 
@@ -87,7 +87,7 @@ function addAllProjects() {
 				const projectCount = projects.length;
 
 				for (let i = 0; i < projectCount; i++) {
-					addOneProject(projects[i]);
+					projectList.appendChild(addOneProject(projects[i]));
 				}
 
 				return;
@@ -107,15 +107,56 @@ function addOneProject(project: Project) {
 	const projectNameElem = document.createElement("a");
 	const projectDescElem = document.createElement("div");
 
-	projectList.appendChild(listItem);
-	toolContainter.append(updateProjectBtn, deleteProjectBtn);
-	listItem.append(toolContainter, projectNameElem, projectDescElem);
+	const projectTag = `${project.id}#${project.name}`;
+	const projectDesc = project.description || "No description";
 
+	listItem.append(toolContainter, projectNameElem, projectDescElem);
 	listItem.classList.add("rounded-lg", "bg-white", "p-2", "pt-0");
 
+	toolContainter.append(updateProjectBtn, deleteProjectBtn);
 	toolContainter.classList.add("border-b", "flex", "justify-end", "gap-2");
 
 	updateProjectBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
+	updateProjectBtn.title = `update project ${projectTag}`;
+
+	deleteProjectBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+	deleteProjectBtn.title = `delete project ${projectTag}`;
+
+	projectLink.searchParams.set("project_id", project.id);
+
+	projectNameElem.href = projectLink.href;
+	projectNameElem.innerText = projectNameElem.title = projectTag;
+	projectNameElem.classList.add(
+		"inline-block",
+		"w-full",
+		"truncate",
+		"text-lg",
+		"font-medium",
+	);
+
+	projectDescElem.innerText = projectDescElem.title = projectDesc;
+	projectDescElem.classList.add("w-full", "truncate", "text-gray-500");
+
+	deleteProjectBtn.addEventListener("click", () => {
+		if (
+			confirm(
+				"Are you sure you wanted to delete this project! " +
+					"All tasks belong to the project will be delete too! " +
+					"Make sure you have the back up of the important information.",
+			)
+		) {
+			deleteProject(project.id)
+				.then(({ status, message }) => {
+					if (status === "ok") {
+						return listItem.remove();
+					}
+
+					alert(message);
+				})
+				.catch(() => alert("something went wrong"));
+		}
+	});
+
 	updateProjectBtn.addEventListener("click", () => {
 		updateProjectDialog.showModal();
 
@@ -142,49 +183,7 @@ function addOneProject(project: Project) {
 		}
 	});
 
-	deleteProjectBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-	deleteProjectBtn.addEventListener("click", () => {
-		if (
-			confirm(
-				"Are you sure you wanted to delete this project! " +
-					"All tasks belong to the project will be delete too! " +
-					"Make sure you have the back up of the important information.",
-			)
-		) {
-			deleteProject(project.id)
-				.then(({ status, message }) => {
-					if (status === "ok") {
-						return listItem.remove();
-					}
-
-					alert(message);
-				})
-				.catch(() => alert("something went wrong"));
-		}
-	});
-
-	projectLink.searchParams.set("project_id", project.id);
-
-	projectNameElem.href = projectLink.href;
-	projectNameElem.innerText = `${project.id}#${project.name}`;
-	projectNameElem.classList.add(
-		"inline-block",
-		"w-full",
-		"overflow-hidden",
-		"text-ellipsis",
-		"whitespace-nowrap",
-		"text-lg",
-		"font-medium",
-	);
-
-	projectDescElem.innerText = project.description || "No description";
-	projectDescElem.classList.add(
-		"w-full",
-		"overflow-hidden",
-		"text-ellipsis",
-		"whitespace-nowrap",
-		"text-gray-500",
-	);
+	return listItem;
 
 	function handleUpdateProject(this: HTMLFormElement, e: SubmitEvent) {
 		e.preventDefault();
@@ -198,8 +197,11 @@ function addOneProject(project: Project) {
 				if (status === "ok" && data !== null) {
 					const { name, description } = data;
 
-					projectNameElem.innerText = `${project.id}#${name}`;
-					projectDescElem.innerText = description || "No description";
+					const newTag = `${project.id}#${name}`;
+					const newDesc = description || "No description";
+
+					projectNameElem.innerText = projectNameElem.title = newTag;
+					projectDescElem.innerText = projectDescElem.title = newDesc;
 
 					updateProjectDialog.close();
 
