@@ -19,7 +19,13 @@ const ProjectSchema = new Schema<Project>({
 	description: { type: String, trim: true },
 	status: { type: String, enum: ["on going", "new", "finish"] },
 	estimated_finish: { type: Date },
-	team_size: { type: Number, min: 1, default: 1 },
+	team_size: {
+		type: Number,
+		min: 1,
+		default: 1,
+		get: (v: number) => Math.round(v),
+		set: (v: number) => Math.round(v),
+	},
 	created_at: { type: Date, immutable: true },
 });
 

@@ -21,7 +21,14 @@ const TaskSchema = new Schema<Task>({
 	expected_begin: { type: Date },
 	expected_finish: { type: Date },
 	status: { type: String, enum: ["on going", "new", "finish"] },
-	priority_level: { type: Number, required: true, default: 0, min: 0 },
+	priority_level: {
+		type: Number,
+		required: true,
+		min: 1,
+		default: 1,
+		get: (v: number) => Math.round(v),
+		set: (v: number) => Math.round(v),
+	},
 	created_at: { type: Date, immutable: true },
 	project_id: {
 		type: String,
