@@ -4,6 +4,159 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <script src="/src/project.ts" type="module"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
   </head>
-  <body></body>
+  <body class="bg-gray-300">
+    <header class="flex w-[100%] items-center justify-between bg-gray-900 p-7">
+      <div class="w-5 text-white">
+        <ul class="flex list-none items-center">
+          <li class="mx-3">
+            <input
+              class="w-36 bg-black text-[17px] font-bold"
+              type="text"
+              placeholder="text"
+            />
+          </li>
+          <li
+            class="mx-3 rounded-sm transition duration-200 hover:bg-slate-300 hover:text-black"
+          >
+            <button class="h-7 w-7"><i class="fa-regular fa-star"></i></button>
+          </li>
+          <li
+            class="mx-3 rounded-sm transition duration-200 hover:bg-slate-300 hover:text-black"
+          >
+            <button class="h-7 w-7"><i class="fa-solid fa-lock"></i></button>
+          </li>
+          <li class="mx-3 flex">
+            <button
+              class="h-7 w-28 translate-x-2 transition duration-200 hover:bg-slate-300 hover:text-black"
+            >
+              Board<i class="fa-solid fa-arrow-down-short-wide p-1"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="mr-[350px] w-5 text-white">
+        <ul class="flex list-none items-center">
+          <li
+            class="mx-3 rounded-sm transition duration-200 hover:bg-slate-300 hover:text-black"
+          >
+            <button class="h-7 w-7"><i class="fa-solid fa-rocket"></i></button>
+          </li>
+          <li
+            class="mx-3 rounded-sm transition duration-200 hover:bg-slate-300 hover:text-black"
+          >
+            <button class="h-7 w-7"><i class="fa-solid fa-bolt"></i></button>
+          </li>
+          <li class="mx-2">
+            <button
+              class="h-7 w-20 translate-x-2 transition duration-200 hover:bg-slate-300 hover:text-black"
+            >
+              <i class="fa-solid fa-filter p-1"></i>Filter
+            </button>
+          </li>
+          <li>|</li>
+          <li>
+            <img
+              class="float-left ml-1 mr-1 h-8 w-8 rounded-[50%] border-[2px]"
+              src=""
+            />
+          </li>
+          <li class="mx-1">
+            <button
+              class="h-7 w-20 translate-x-2 transition duration-200 hover:bg-slate-300 hover:text-black"
+            >
+              <i class="fa-solid fa-share p-1"></i>Share
+            </button>
+          </li>
+          <li
+            class="mx-3 rounded-sm transition duration-200 hover:bg-slate-300 hover:text-black"
+          >
+            <button class="h-7 w-7">
+              <i class="fa-solid fa-ellipsis"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </header>
+    <main>
+      <div class="p-6">
+        <ol class="flex list-none flex-row justify-center">
+          <li class="h-[100%] px-[6px]">
+            <form
+              class="h-auto max-h-full w-[243px] justify-between rounded-xl bg-black p-3 text-white"
+            >
+              <input class="bg-black" type="text" value="New" />
+              <button
+                class="h-7 w-7 rounded-sm transition duration-200 hover:bg-slate-300 hover:text-black"
+              >
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+              <div
+                class="my-3 rounded-sm bg-[#454545] transition duration-100 hover:block hover:border-2"
+              >
+                <a class="" href="#"
+                  >Project planning
+                  <button
+                    class="ml-16 h-6 w-6 rounded-[50%] hover:bg-[#696969]"
+                  >
+                    <i class="fa-regular fa-pen-to-square"></i></button
+                ></a>
+              </div>
+              <div
+                class="my-3 rounded-sm bg-[#454545] transition duration-100 hover:block hover:border-2"
+              >
+                <a class="" href="#"
+                  >Input
+                  <button
+                    class="ml-[142px] h-6 w-6 rounded-[50%] hover:bg-[#696969]"
+                  >
+                    <i class="fa-regular fa-pen-to-square"></i></button
+                ></a>
+              </div>
+              <div class="my-7 text-center">
+                <button
+                  class="h-8 w-52 rounded-sm duration-100 hover:bg-[#696969]"
+                >
+                  <i class="fa-solid fa-plus"></i> Add task
+                </button>
+              </div>
+            </form>
+          </li>
+          <li class="h-[100%] px-[6px]">
+            <form
+              class="h-auto max-h-full w-[243px] justify-between rounded-xl bg-black text-white"
+            >
+              <div class="p-3">
+                <input class="bg-black" type="text" value="On going" />
+                <button
+                  class="h-7 w-7 rounded-sm transition duration-200 hover:bg-slate-300 hover:text-black"
+                >
+                  <i class="fa-solid fa-ellipsis"></i>
+                </button>
+              </div>
+            </form>
+          </li>
+          <li class="h-[100%] px-[6px]">
+            <form
+              class="h-auto max-h-full w-[243px] justify-between rounded-xl bg-black text-white"
+            >
+              <div class="p-3">
+                <input class="bg-black" type="text" value="Finish" />
+                <button
+                  class="h-7 w-7 rounded-sm transition duration-200 hover:bg-slate-300 hover:text-black"
+                >
+                  <i class="fa-solid fa-ellipsis"></i>
+                </button>
+              </div>
+            </form>
+          </li>
+        </ol>
+      </div>
+    </main>
+  </body>
 </html>
