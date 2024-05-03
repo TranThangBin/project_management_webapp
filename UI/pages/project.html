@@ -102,31 +102,125 @@
         </div>
         <ul class="flex flex-col items-center gap-4 py-4">
           <li
-            class="flex w-full items-center justify-between rounded-sm bg-zinc-700 px-2 py-1"
+            class="group relative w-full break-words rounded-sm bg-zinc-700 p-2"
           >
-            Project planning
-            <button class="rounded-full px-2 py-1 hover:bg-zinc-500">
-              <i class="fa-regular fa-pen-to-square"></i>
-            </button>
+            Project Planning
+            <div
+              class="grid w-full grid-rows-[0fr] overflow-hidden break-words transition-[grid-template-rows] group-hover:grid-rows-[1fr]"
+            >
+              <div class="min-h-0 text-gray-400">
+                Some description for project planning
+              </div>
+            </div>
+
+            <div class="absolute right-1 top-1 hidden group-hover:block">
+              <button
+                class="rounded-full bg-zinc-700 px-2 py-1 hover:bg-zinc-500"
+              >
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+
+              <button
+                class="rounded-full bg-zinc-700 px-3 py-1 hover:bg-zinc-500"
+              >
+                <i class="fa-solid fa-angle-right"></i>
+              </button>
+
+              <button
+                class="rounded-full bg-zinc-700 px-2 py-1 hover:bg-zinc-500"
+              >
+                <i class="fa-solid fa-angles-right"></i>
+              </button>
+            </div>
           </li>
 
           <li
-            class="flex w-full items-center justify-between rounded-sm bg-zinc-700 px-2 py-1"
+            class="group relative w-full break-words rounded-sm bg-zinc-700 p-2"
           >
             Input
-            <button class="rounded-full px-2 py-1 hover:bg-zinc-500">
-              <i class="fa-regular fa-pen-to-square"></i>
-            </button>
-          </li>
-
-          <li>
-            <button
-              class="rounded-sm px-4 py-2 transition-colors duration-100 hover:bg-zinc-500"
+            <div
+              class="grid w-full grid-rows-[0fr] overflow-hidden break-words transition-[grid-template-rows] group-hover:grid-rows-[1fr]"
             >
-              <i class="fa-solid fa-plus"></i> Add task
-            </button>
+              <div class="min-h-0 text-gray-400">
+                Some description for input
+              </div>
+            </div>
+
+            <div class="absolute right-1 top-1 hidden group-hover:block">
+              <button
+                class="rounded-full bg-zinc-700 px-2 py-1 hover:bg-zinc-500"
+              >
+                <i class="fa-regular fa-pen-to-square"></i>
+              </button>
+
+              <button
+                class="rounded-full bg-zinc-700 px-3 py-1 hover:bg-zinc-500"
+              >
+                <i class="fa-solid fa-angle-right"></i>
+              </button>
+
+              <button
+                class="rounded-full bg-zinc-700 px-2 py-1 hover:bg-zinc-500"
+              >
+                <i class="fa-solid fa-angles-right"></i>
+              </button>
+            </div>
           </li>
         </ul>
+
+        <form
+          class="group flex w-full flex-col gap-2 rounded-sm bg-zinc-700 p-2"
+          id="form-add-task"
+        >
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Task name"
+            autocomplete="on"
+            class="w-full rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
+          />
+
+          <input
+            type="text"
+            name="description"
+            id="description"
+            placeholder="Task description"
+            class="w-full rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
+          />
+
+          <input
+            type="number"
+            name="priority_level"
+            id="priority_level"
+            placeholder="Task priority"
+            class="w-full rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
+          />
+
+          <div class="flex justify-end gap-2">
+            <button
+              type="submit"
+              class="rounded-md border border-zinc-500 px-2 py-1"
+            >
+              Add task
+            </button>
+
+            <button
+              type="button"
+              class="rounded-md border border-zinc-500 px-2 py-1"
+              id="btn-cancel"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+
+        <button
+          class="w-full rounded-sm py-2 transition-colors duration-100 hover:bg-zinc-500"
+          id="btn-add-task"
+        >
+          <i class="fa-solid fa-plus"></i> Add task
+        </button>
       </section>
       <section class="rounded-xl bg-black p-3 text-white">
         <div class="flex items-center justify-between">
