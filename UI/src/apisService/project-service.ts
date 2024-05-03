@@ -18,7 +18,7 @@ export async function getAllProject() {
 	return data as ResponsePayload<Project[] | null>;
 }
 
-export async function createNewProject(project: Project) {
+export async function createProject(project: Project) {
 	const res = await fetch("http://localhost:3000/project/new", {
 		method: "POST",
 		headers: {

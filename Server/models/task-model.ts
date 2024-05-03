@@ -49,14 +49,15 @@ TaskSchema.pre("save", function (next) {
 	ProjectModel.findOne({ id: this.project_id })
 		.then((project) => {
 			if (project?.status === "new") {
-				ProjectModel.updateOne(
+				return ProjectModel.updateOne(
 					{ id: this.project_id },
 					{ $set: { status: "on going" } },
-				)
-					.then(() => next())
-					.catch(next);
+				);
 			}
+
+			return Promise.resolve(undefined);
 		})
+		.then(() => next())
 		.catch(next);
 });
 

@@ -1,76 +1,164 @@
 import {
-  Task,
-  getAllTaskForProject,
-  getTaskByID,
-  createTask,
-  updateTask,
-  deleteTask,
+	getAllTaskForProject,
+	getTaskByID,
+	createTask,
+	updateTask,
+	deleteTask,
+	Task,
 } from "./apisService/task-service";
 
 import "/src/tailwind.css";
 
-console.log("getAllTaskForProject:", getAllTaskForProject);
-console.log("getTaskByID:", getTaskByID);
-console.log("createTask:", createTask);
-console.log("updateTask:", updateTask);
-console.log("deleteTask:", deleteTask);
+const projectID = new URL(window.location.toString()).searchParams.get(
+	"project_id",
+);
 
-const projectId = "PRJ0002";
-const taskId = "TSK0011";
+if (projectID === null) {
+	const message = "missing query project_id";
 
-getAllTaskForProject(projectId)
-  .then((response) => {
-    console.log("getAllTaskForProject response:", response);
-  })
-  .catch((error) => {
-    console.error("Error fetching tasks:", error);
-  });
+	alert(message);
 
-getTaskByID(projectId, taskId)
-  .then((response) => {
-    console.log("getTaskByID response:", response);
-  })
-  .catch((error) => {
-    console.error("Error fetching task:", error);
-  });
+	throw new Error(message);
+}
 
-const newTask: Task = {
-  id: "TSK0012",
-  project_id: projectId,
-  name: "New Task",
-  description: "This is a new task",
-  expected_begin: new Date(),
-  expected_finish: new Date(),
-  status: "new",
-  priority_level: 1,
-  created_at: new Date(),
-};
+const btnAddTask = document.querySelector(
+	"button#btn-add-task",
+) as HTMLButtonElement;
 
-createTask(projectId, newTask)
-  .then((response) => {
-    console.log("createTask response:", response);
-  })
-  .catch((error) => {
-    console.error("Error creating task:", error);
-  });
+const formAddTask = document.querySelector(
+	"form#form-add-task",
+) as HTMLFormElement;
 
-const updatedTask: Task = {
-  ...newTask,
-  name: "Updated Task",
-};
+const btnCancel = formAddTask.querySelector(
+	"button#btn-cancel",
+) as HTMLButtonElement;
 
-updateTask(projectId, updatedTask, newTask.id)
-  .then((response) => {
-    console.log("updateTask response:", response);
-  })
-  .catch((error) => {
-    console.error("Error updating task:", error);
-  });
+const listNewTask = document.querySelector(
+	"ul#list-new-task",
+) as HTMLUListElement;
 
-deleteTask(projectId, newTask.id)
-  .then((response) => {
-    console.log("deleteTask response:", response);
-  })
-  .catch((error) => {
-    console.error("Error deleting task:", error);
-  });
+formAddTask.remove();
+
+btnAddTask.addEventListener("click", function () {
+	this.parentNode!.replaceChild(formAddTask, this);
+});
+
+btnCancel.addEventListener("click", function () {
+	formAddTask.parentNode!.replaceChild(btnAddTask, formAddTask);
+});
+
+formAddTask.addEventListener("submit", function (e) {
+	e.preventDefault();
+
+	const formData = new FormData(this);
+
+	const task: unknown = Object.fromEntries(formData);
+
+	createTask(projectID!, task as Task)
+		.then((payload) => {
+			if (payload.status === "ok" && payload.data !== null) {
+				listNewTask.appendChild(createTaskComponent(payload.data));
+				this.parentNode!.replaceChild(btnAddTask, this);
+				return;
+			}
+
+			alert(payload.message);
+		})
+		.catch(() => alert("something went wrong"));
+});
+
+document.addEventListener("DOMContentLoaded", renderAllTasks);
+
+function renderAllTasks() {
+	getAllTaskForProject(projectID!).then((payload) => {
+		if (payload.status === "ok" && payload.data !== null) {
+			const tasks = payload.data;
+
+			const taskCount = tasks.length;
+
+			for (let i = 0; i < taskCount; i++) {
+				listNewTask.appendChild(createTaskComponent(tasks[i]));
+			}
+
+			return;
+		}
+
+		alert(payload.message);
+	});
+}
+
+function createTaskComponent(task: Task) {
+	const listItem = document.createElement("li");
+	const taskTag = `${task.id}#${task.name}`;
+	const descWrapper = document.createElement("div");
+	const descContainer = document.createElement("div");
+	const toolContainer = document.createElement("div");
+	const btnEdit = document.createElement("button");
+	const btnToOnGoing = document.createElement("button");
+	const btnToFinish = document.createElement("button");
+
+	listItem.innerText = taskTag;
+	listItem.classList.add(
+		"group",
+		"relative",
+		"w-full",
+		"break-words",
+		"rounded-sm",
+		"bg-zinc-700",
+		"p-2",
+	);
+
+	descWrapper.appendChild(descContainer);
+	descWrapper.classList.add(
+		"grid",
+		"w-full",
+		"grid-rows-[0fr]",
+		"overflow-hidden",
+		"break-words",
+		"transition-[grid-template-rows]",
+		"group-hover:grid-rows-[1fr]",
+	);
+
+	descContainer.innerText = task.description || "No description";
+	descContainer.classList.add("min-h-0", "text-gray-400");
+
+	toolContainer.classList.add(
+		"absolute",
+		"right-1",
+		"top-1",
+		"hidden",
+		"group-hover:block",
+	);
+
+	btnEdit.innerHTML = '<i class="fa-regular fa-pen-to-square"></i>';
+	btnEdit.classList.add(
+		"rounded-full",
+		"bg-zinc-700",
+		"px-2",
+		"py-1",
+		"hover:bg-zinc-500",
+	);
+
+	btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
+	btnToOnGoing.classList.add(
+		"rounded-full",
+		"bg-zinc-700",
+		"px-3",
+		"py-1",
+		"hover:bg-zinc-500",
+	);
+
+	btnToFinish.innerHTML = '<i class="fa-solid fa-angles-right"></i>';
+	btnToFinish.classList.add(
+		"rounded-full",
+		"bg-zinc-700",
+		"px-2",
+		"py-1",
+		"hover:bg-zinc-500",
+	);
+
+	listItem.append(descWrapper, toolContainer);
+	toolContainer.append(btnEdit, btnToOnGoing, btnToFinish);
+
+	return listItem;
+}
