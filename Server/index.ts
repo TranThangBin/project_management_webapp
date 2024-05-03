@@ -17,11 +17,11 @@ app.use("/project", projectRoute);
 app.use(errorHandler);
 
 app.listen(PORT, async () => {
-	try {
-		await DBConnect();
-		console.log(`Listening at http://localhost:${PORT}`);
-	} catch (err) {
-		console.error("An error occurred when connecting to the database", err);
-		process.exit(1);
-	}
+    try {
+        await DBConnect();
+        console.log(`Listening at http://localhost:${PORT}`);
+    } catch (err) {
+        console.error("An error occurred when connecting to the database", err);
+        process.exit(1);
+    }
 });
