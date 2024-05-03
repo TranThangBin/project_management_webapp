@@ -24,7 +24,7 @@ const ProjectSchema = new Schema<Project>({
 		min: 1,
 		default: 1,
 		get: (v: number) => Math.round(v),
-		set: (v: number) => Math.round(v),
+		set: (v: number) => Math.round(v) || 1,
 	},
 	created_at: { type: Date, immutable: true },
 });

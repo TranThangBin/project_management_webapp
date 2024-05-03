@@ -25,7 +25,6 @@ const TaskSchema = new Schema<Task>({
 		type: Number,
 		required: true,
 		min: 1,
-		default: 1,
 		get: (v: number) => Math.round(v),
 		set: (v: number) => Math.round(v),
 	},
