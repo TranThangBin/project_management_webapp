@@ -49,7 +49,11 @@ export async function createTask(project_id: string, task: Task) {
 	return data as ResponsePayload<Task | null>;
 }
 
-export async function updateTask(project_id: string, task: Task, id: string) {
+export async function updateTask(
+	project_id: string,
+	task: Partial<Task>,
+	id: string,
+) {
 	const res = await fetch(
 		`http://localhost:3000/project/${project_id}/task/${id}`,
 		{

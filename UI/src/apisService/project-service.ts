@@ -42,7 +42,7 @@ export async function deleteProject(id: string) {
 	return data as ResponsePayload<Project | null>;
 }
 
-export async function updateProject(id: string, project: Project) {
+export async function updateProject(id: string, project: Partial<Project>) {
 	const res = await fetch(`http://localhost:3000/project/${id}`, {
 		method: "PATCH",
 		headers: {

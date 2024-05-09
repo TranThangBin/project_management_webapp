@@ -37,6 +37,14 @@ const listNewTask = document.querySelector(
 	"ul#list-new-task",
 ) as HTMLUListElement;
 
+const listOnGoingTask = document.querySelector(
+	"ul#list-on-going",
+) as HTMLUListElement;
+
+const listFinishTask = document.querySelector(
+	"ul#list-finish",
+) as HTMLUListElement;
+
 formAddTask.remove();
 
 btnAddTask.addEventListener("click", function () {
@@ -47,53 +55,14 @@ btnCancel.addEventListener("click", function () {
 	formAddTask.parentNode!.replaceChild(btnAddTask, formAddTask);
 });
 
-formAddTask.addEventListener("submit", function (e) {
-	e.preventDefault();
-
-	const formData = new FormData(this);
-
-	const task: unknown = Object.fromEntries(formData);
-
-	createTask(projectID!, task as Task)
-		.then((payload) => {
-			if (payload.status === "ok" && payload.data !== null) {
-				listNewTask.appendChild(createTaskComponent(payload.data));
-				this.parentNode!.replaceChild(btnAddTask, this);
-				return;
-			}
-
-			alert(payload.message);
-		})
-		.catch(() => alert("something went wrong"));
-});
-
-document.addEventListener("DOMContentLoaded", renderAllTasks);
-
-function renderAllTasks() {
-	getAllTaskForProject(projectID!).then((payload) => {
-		if (payload.status === "ok" && payload.data !== null) {
-			const tasks = payload.data;
-
-			const taskCount = tasks.length;
-
-			for (let i = 0; i < taskCount; i++) {
-				listNewTask.appendChild(createTaskComponent(tasks[i]));
-			}
-
-			return;
-		}
-
-		alert(payload.message);
-	});
-}
-
-function createTaskComponent(task: Task) {
+const createTaskComponent = (task: Task) => {
 	const listItem = document.createElement("li");
 	const taskTag = `${task.id}#${task.name}`;
 	const descWrapper = document.createElement("div");
 	const descContainer = document.createElement("div");
 	const toolContainer = document.createElement("div");
 	const btnEdit = document.createElement("button");
+	const btnToNew = document.createElement("button");
 	const btnToOnGoing = document.createElement("button");
 	const btnToFinish = document.createElement("button");
 
@@ -139,11 +108,11 @@ function createTaskComponent(task: Task) {
 		"hover:bg-zinc-500",
 	);
 
-	btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
-	btnToOnGoing.classList.add(
+	btnToNew.innerHTML = '<i class="fa-solid fa-angles-left"></i>';
+	btnToNew.classList.add(
 		"rounded-full",
 		"bg-zinc-700",
-		"px-3",
+		"px-2",
 		"py-1",
 		"hover:bg-zinc-500",
 	);
@@ -157,8 +126,156 @@ function createTaskComponent(task: Task) {
 		"hover:bg-zinc-500",
 	);
 
+	btnToOnGoing.classList.add(
+		"rounded-full",
+		"bg-zinc-700",
+		"px-3",
+		"py-1",
+		"hover:bg-zinc-500",
+	);
+
+	toolContainer.appendChild(btnEdit);
+
+	switch (task.status) {
+		case "new":
+			toolContainer.append(btnToOnGoing, btnToFinish);
+			btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
+			break;
+
+		case "on going":
+			toolContainer.append(btnToNew, btnToFinish);
+			break;
+
+		case "finish":
+			toolContainer.append(btnToOnGoing, btnToNew);
+			btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-left"></i>';
+			break;
+
+		default:
+			break;
+	}
+
+	btnToNew.addEventListener("click", () => {
+		updateTask(projectID, { status: "new" }, task.id).then((payload) => {
+			if (payload.status === "ok" && payload.data !== null) {
+				listNewTask.appendChild(listItem);
+
+				if (task.status === "finish") {
+					toolContainer.replaceChild(btnToFinish, btnToNew);
+				} else if (task.status === "on going") {
+					toolContainer.replaceChild(btnToOnGoing, btnToNew);
+				}
+
+				btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
+
+				task = payload.data;
+
+				return;
+			}
+
+			alert(payload.message);
+		});
+	});
+
+	btnToOnGoing.addEventListener("click", () => {
+		updateTask(projectID, { status: "on going" }, task.id).then((payload) => {
+			if (payload.status === "ok" && payload.data !== null) {
+				listOnGoingTask.appendChild(listItem);
+
+				if (task.status === "new") {
+					toolContainer.replaceChild(btnToNew, btnToOnGoing);
+				} else if (task.status === "finish") {
+					toolContainer.replaceChild(btnToFinish, btnToOnGoing);
+				}
+
+				task = payload.data;
+
+				return;
+			}
+
+			alert(payload.message);
+		});
+	});
+
+	btnToFinish.addEventListener("click", () => {
+		updateTask(projectID, { status: "finish" }, task.id).then((payload) => {
+			if (payload.status === "ok" && payload.data !== null) {
+				listFinishTask.appendChild(listItem);
+
+				if (task.status === "new") {
+					toolContainer.replaceChild(btnToNew, btnToFinish);
+				} else if (task.status === "on going") {
+					toolContainer.replaceChild(btnToOnGoing, btnToFinish);
+				}
+
+				btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-left"></i>';
+
+				task = payload.data;
+
+				return;
+			}
+
+			alert(payload.message);
+		});
+	});
+
 	listItem.append(descWrapper, toolContainer);
-	toolContainer.append(btnEdit, btnToOnGoing, btnToFinish);
 
 	return listItem;
-}
+};
+
+formAddTask.addEventListener("submit", function (e) {
+	e.preventDefault();
+
+	const formData = new FormData(this);
+
+	const task: unknown = Object.fromEntries(formData);
+
+	createTask(projectID!, task as Task)
+		.then((payload) => {
+			if (payload.status === "ok" && payload.data !== null) {
+				listNewTask.appendChild(createTaskComponent(payload.data));
+				this.parentNode!.replaceChild(btnAddTask, this);
+				return;
+			}
+
+			alert(payload.message);
+		})
+		.catch(() => alert("something went wrong"));
+});
+
+const renderAllTasks = () => {
+	getAllTaskForProject(projectID).then((payload) => {
+		if (payload.status === "ok" && payload.data !== null) {
+			const tasks = payload.data;
+
+			const taskCount = tasks.length;
+
+			for (let i = 0; i < taskCount; i++) {
+				const task = tasks[i];
+				switch (task.status) {
+					case "new":
+						listNewTask.appendChild(createTaskComponent(tasks[i]));
+						break;
+
+					case "on going":
+						listOnGoingTask.appendChild(createTaskComponent(tasks[i]));
+						break;
+
+					case "finish":
+						listFinishTask.appendChild(createTaskComponent(tasks[i]));
+						break;
+
+					default:
+						break;
+				}
+			}
+
+			return;
+		}
+
+		alert(payload.message);
+	});
+};
+
+document.addEventListener("DOMContentLoaded", renderAllTasks);
