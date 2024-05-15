@@ -3,13 +3,24 @@ import type { ResponsePayload } from "./response";
 import { TaskModel } from "../models/task-model";
 
 export const findAllTask: Handler = (
-	req: Request<{ project_id?: string }>,
+	req: Request<
+		{ project_id?: string },
+		any,
+		any,
+		{ status?: "new" | "on going" | "finish" }
+	>,
 	res,
 	next,
 ) => {
-	const project_id = req.params.project_id;
+	const project_id = req.params.project_id as string;
 
-	TaskModel.find({ project_id })
+	const filter: any = { project_id };
+
+	if (req.query.status) {
+		filter.status = req.query.status;
+	}
+
+	TaskModel.find(filter)
 		.then((tasks) => {
 			const payload: ResponsePayload = {
 				status: "ok",

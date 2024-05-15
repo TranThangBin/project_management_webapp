@@ -12,10 +12,20 @@ export type Task = {
 	created_at: Date;
 };
 
-export async function getAllTaskForProject(project_id: string) {
-	const res = await fetch(
-		`http://localhost:3000/project/${project_id}/task/all`,
+export async function getAllTaskForProject(
+	project_id: string,
+	status?: Task["status"],
+) {
+	const reqUrl = new URL(
+		`/project/${project_id}/task/all`,
+		"http://localhost:3000",
 	);
+
+	if (status) {
+		reqUrl.searchParams.set("status", status);
+	}
+
+	const res = await fetch(reqUrl);
 
 	const data = await res.json();
 

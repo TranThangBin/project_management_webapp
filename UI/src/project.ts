@@ -1,3 +1,4 @@
+import { ResponsePayload } from "./apisService/response-payload";
 import {
 	getAllTaskForProject,
 	getTaskByID,
@@ -44,6 +45,43 @@ const listOnGoingTask = document.querySelector(
 const listFinishTask = document.querySelector(
 	"ul#list-finish",
 ) as HTMLUListElement;
+
+const btnRefreshNew = document.querySelector(
+	"button#btn-refresh-new",
+) as HTMLButtonElement;
+
+const btnRefreshOnGoing = document.querySelector(
+	"button#btn-refresh-on-going",
+) as HTMLButtonElement;
+
+const btnRefreshFinish = document.querySelector(
+	"button#btn-refresh-finish",
+) as HTMLButtonElement;
+
+const refreshNew = () => {
+	while (listNewTask.lastChild) {
+		listNewTask.removeChild(listNewTask.lastChild);
+	}
+	getAllTaskForProject(projectID, "new").then(renderTasks);
+};
+
+const refreshOnGoing = () => {
+	while (listOnGoingTask.lastChild) {
+		listOnGoingTask.removeChild(listOnGoingTask.lastChild);
+	}
+	getAllTaskForProject(projectID, "on going").then(renderTasks);
+};
+
+const refreshFinish = () => {
+	while (listFinishTask.lastChild) {
+		listFinishTask.removeChild(listFinishTask.lastChild);
+	}
+	getAllTaskForProject(projectID, "finish").then(renderTasks);
+};
+
+btnRefreshNew.addEventListener("click", refreshNew);
+btnRefreshOnGoing.addEventListener("click", refreshOnGoing);
+btnRefreshFinish.addEventListener("click", refreshFinish);
 
 formAddTask.remove();
 
@@ -99,7 +137,7 @@ const createTaskComponent = (task: Task) => {
 		"group-hover:block",
 	);
 
-	btnEdit.innerHTML = '<i class="fa-regular fa-pen-to-square"></i>';
+	btnEdit.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
 	btnEdit.classList.add(
 		"rounded-full",
 		"bg-zinc-700",
@@ -138,16 +176,16 @@ const createTaskComponent = (task: Task) => {
 
 	switch (task.status) {
 		case "new":
-			toolContainer.append(btnToOnGoing, btnToFinish);
+			toolContainer.prepend(btnToOnGoing, btnToFinish);
 			btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
 			break;
 
 		case "on going":
-			toolContainer.append(btnToNew, btnToFinish);
+			toolContainer.prepend(btnToNew, btnToFinish);
 			break;
 
 		case "finish":
-			toolContainer.append(btnToOnGoing, btnToNew);
+			toolContainer.prepend(btnToOnGoing, btnToNew);
 			btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-left"></i>';
 			break;
 
@@ -158,18 +196,8 @@ const createTaskComponent = (task: Task) => {
 	btnToNew.addEventListener("click", () => {
 		updateTask(projectID, { status: "new" }, task.id).then((payload) => {
 			if (payload.status === "ok" && payload.data !== null) {
-				listNewTask.appendChild(listItem);
-
-				if (task.status === "finish") {
-					toolContainer.replaceChild(btnToFinish, btnToNew);
-				} else if (task.status === "on going") {
-					toolContainer.replaceChild(btnToOnGoing, btnToNew);
-				}
-
-				btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
-
-				task = payload.data;
-
+				refreshNew();
+				listItem.remove();
 				return;
 			}
 
@@ -180,16 +208,8 @@ const createTaskComponent = (task: Task) => {
 	btnToOnGoing.addEventListener("click", () => {
 		updateTask(projectID, { status: "on going" }, task.id).then((payload) => {
 			if (payload.status === "ok" && payload.data !== null) {
-				listOnGoingTask.appendChild(listItem);
-
-				if (task.status === "new") {
-					toolContainer.replaceChild(btnToNew, btnToOnGoing);
-				} else if (task.status === "finish") {
-					toolContainer.replaceChild(btnToFinish, btnToOnGoing);
-				}
-
-				task = payload.data;
-
+				refreshOnGoing();
+				listItem.remove();
 				return;
 			}
 
@@ -200,18 +220,8 @@ const createTaskComponent = (task: Task) => {
 	btnToFinish.addEventListener("click", () => {
 		updateTask(projectID, { status: "finish" }, task.id).then((payload) => {
 			if (payload.status === "ok" && payload.data !== null) {
-				listFinishTask.appendChild(listItem);
-
-				if (task.status === "new") {
-					toolContainer.replaceChild(btnToNew, btnToFinish);
-				} else if (task.status === "on going") {
-					toolContainer.replaceChild(btnToOnGoing, btnToFinish);
-				}
-
-				btnToOnGoing.innerHTML = '<i class="fa-solid fa-angle-left"></i>';
-
-				task = payload.data;
-
+				refreshFinish();
+				listItem.remove();
 				return;
 			}
 
@@ -244,38 +254,40 @@ formAddTask.addEventListener("submit", function (e) {
 		.catch(() => alert("something went wrong"));
 });
 
-const renderAllTasks = () => {
-	getAllTaskForProject(projectID).then((payload) => {
-		if (payload.status === "ok" && payload.data !== null) {
-			const tasks = payload.data;
+document.addEventListener("DOMContentLoaded", () =>
+	getAllTaskForProject(projectID).then(renderTasks),
+);
 
-			const taskCount = tasks.length;
+function renderTasks(
+	payload: Awaited<ReturnType<typeof getAllTaskForProject>>,
+) {
+	if (payload.status === "ok" && payload.data !== null) {
+		const tasks = payload.data;
 
-			for (let i = 0; i < taskCount; i++) {
-				const task = tasks[i];
-				switch (task.status) {
-					case "new":
-						listNewTask.appendChild(createTaskComponent(tasks[i]));
-						break;
+		const taskCount = tasks.length;
 
-					case "on going":
-						listOnGoingTask.appendChild(createTaskComponent(tasks[i]));
-						break;
+		for (let i = 0; i < taskCount; i++) {
+			const task = tasks[i];
+			switch (task.status) {
+				case "new":
+					listNewTask.appendChild(createTaskComponent(tasks[i]));
+					break;
 
-					case "finish":
-						listFinishTask.appendChild(createTaskComponent(tasks[i]));
-						break;
+				case "on going":
+					listOnGoingTask.appendChild(createTaskComponent(tasks[i]));
+					break;
 
-					default:
-						break;
-				}
+				case "finish":
+					listFinishTask.appendChild(createTaskComponent(tasks[i]));
+					break;
+
+				default:
+					break;
 			}
-
-			return;
 		}
 
-		alert(payload.message);
-	});
-};
+		return;
+	}
 
-document.addEventListener("DOMContentLoaded", renderAllTasks);
+	alert(payload.message);
+}
