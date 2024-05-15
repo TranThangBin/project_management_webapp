@@ -1,4 +1,3 @@
-import { ResponsePayload } from "./apisService/response-payload";
 import {
 	getAllTaskForProject,
 	getTaskByID,
@@ -99,10 +98,69 @@ const createTaskComponent = (task: Task) => {
 	const descWrapper = document.createElement("div");
 	const descContainer = document.createElement("div");
 	const toolContainer = document.createElement("div");
-	const btnEdit = document.createElement("button");
+	const btnMenu = document.createElement("button");
+	const menuList = document.createElement("ul");
 	const btnToNew = document.createElement("button");
 	const btnToOnGoing = document.createElement("button");
 	const btnToFinish = document.createElement("button");
+
+	const updateTaskMenuItem = document.createElement("li");
+	const deleteTaskMenuItem = document.createElement("li");
+	const traceTaskMenuItem = document.createElement("li");
+
+	const updateTaskBtn = document.createElement("button");
+	const deleteTaskBtn = document.createElement("button");
+	const traceTaskBtn = document.createElement("button");
+
+	btnMenu.addEventListener("click", () => {
+		const menuState = btnMenu.getAttribute("data-menu-state");
+
+		if (menuState === null || menuState === "off") {
+			toolContainer.appendChild(menuList);
+			btnMenu.setAttribute("data-menu-state", "on");
+			return;
+		}
+
+		toolContainer.removeChild(menuList);
+		btnMenu.setAttribute("data-menu-state", "off");
+	});
+
+	listItem.addEventListener("mouseleave", () => {
+		const menuState = btnMenu.getAttribute("data-menu-state");
+
+		if (menuState !== null && menuState !== "off") {
+			toolContainer.removeChild(menuList);
+			btnMenu.setAttribute("data-menu-state", "off");
+		}
+	});
+
+	menuList.append(updateTaskMenuItem, deleteTaskMenuItem, traceTaskMenuItem);
+	menuList.classList.add(
+		"absolute",
+		"right-0",
+		"bg-zinc-700",
+		"w-max",
+		"border",
+		"border-white",
+		"z-10",
+	);
+
+	updateTaskMenuItem.classList.add("border", "border-white");
+	deleteTaskMenuItem.classList.add("border", "border-white");
+	traceTaskMenuItem.classList.add("border", "border-white");
+
+	updateTaskBtn.innerText = "Update Task";
+	updateTaskBtn.classList.add("p-2");
+
+	deleteTaskBtn.innerText = "Delete Task";
+	deleteTaskBtn.classList.add("p-2");
+
+	traceTaskBtn.innerText = "Trace Task";
+	traceTaskBtn.classList.add("p-2");
+
+	updateTaskMenuItem.appendChild(updateTaskBtn);
+	deleteTaskMenuItem.appendChild(deleteTaskBtn);
+	traceTaskMenuItem.appendChild(traceTaskBtn);
 
 	listItem.innerText = taskTag;
 	listItem.classList.add(
@@ -137,8 +195,8 @@ const createTaskComponent = (task: Task) => {
 		"group-hover:block",
 	);
 
-	btnEdit.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
-	btnEdit.classList.add(
+	btnMenu.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
+	btnMenu.classList.add(
 		"rounded-full",
 		"bg-zinc-700",
 		"px-2",
@@ -172,7 +230,7 @@ const createTaskComponent = (task: Task) => {
 		"hover:bg-zinc-500",
 	);
 
-	toolContainer.appendChild(btnEdit);
+	toolContainer.appendChild(btnMenu);
 
 	switch (task.status) {
 		case "new":
