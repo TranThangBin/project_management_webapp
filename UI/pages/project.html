@@ -90,7 +90,32 @@
         </li>
       </ul>
     </header>
+
     <main class="grid grid-cols-3 items-start gap-4 p-4">
+      <dialog id="update-task-dialog">
+        <form id="form-update-task">
+          <label>
+            Name
+            <input type="text" name="name" id="name-update" autocomplete="on" />
+          </label>
+          <label
+            >Description
+            <input type="text" name="description" id="description-update" />
+          </label>
+          <label>
+            Priority
+            <input
+              type="number"
+              name="priority_level"
+              id="priority_level-update"
+            />
+          </label>
+          <button type="submit" title="update task">Update</button>
+          <button type="button" title="close form" id="btn-close-dialog">
+            Close Form
+          </button>
+        </form>
+      </dialog>
       <section class="rounded-xl bg-black p-3 text-white">
         <div class="flex items-center justify-between">
           <h2>New</h2>
@@ -114,7 +139,7 @@
           <input
             type="text"
             name="name"
-            id="name"
+            id="name-add"
             placeholder="Task name"
             autocomplete="on"
             class="w-full rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
@@ -123,7 +148,7 @@
           <input
             type="text"
             name="description"
-            id="description"
+            id="description-add"
             placeholder="Task description"
             class="w-full rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
           />
@@ -131,7 +156,7 @@
           <input
             type="number"
             name="priority_level"
-            id="priority_level"
+            id="priority_level-add"
             placeholder="Task priority"
             class="w-full rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
           />

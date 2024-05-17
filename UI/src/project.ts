@@ -57,6 +57,14 @@ const btnRefreshFinish = document.querySelector(
 	"button#btn-refresh-finish",
 ) as HTMLButtonElement;
 
+const updateTaskDialog = document.querySelector(
+	"dialog#update-task-dialog",
+) as HTMLDialogElement;
+
+const btnCloseUpdateTask = updateTaskDialog.querySelector(
+	"button#btn-close-dialog",
+) as HTMLButtonElement;
+
 const refreshNew = () => {
 	while (listNewTask.lastChild) {
 		listNewTask.removeChild(listNewTask.lastChild);
@@ -112,51 +120,67 @@ const createTaskComponent = (task: Task) => {
 	const deleteTaskBtn = document.createElement("button");
 	const traceTaskBtn = document.createElement("button");
 
+	let menuOn = false;
 	btnMenu.addEventListener("click", () => {
-		const menuState = btnMenu.getAttribute("data-menu-state");
-
-		if (menuState === null || menuState === "off") {
+		if (menuOn) {
+			toolContainer.removeChild(menuList);
+		} else {
 			toolContainer.appendChild(menuList);
-			btnMenu.setAttribute("data-menu-state", "on");
+		}
+
+		menuOn = !menuOn;
+	});
+	listItem.addEventListener("mouseleave", () => {
+		if (menuOn) {
+			toolContainer.removeChild(menuList);
+			menuOn = false;
+		}
+	});
+
+	updateTaskBtn.addEventListener("click", () => updateTaskDialog.showModal());
+	btnCloseUpdateTask.addEventListener("click", () => updateTaskDialog.close());
+
+	deleteTaskMenuItem.addEventListener("click", () => {
+		if (!confirm(taskTag + "\nare you sure to delete this task")) {
 			return;
 		}
 
-		toolContainer.removeChild(menuList);
-		btnMenu.setAttribute("data-menu-state", "off");
-	});
+		deleteTask(projectID, task.id).then((payload) => {
+			if (payload.status === "ok" && payload.data) {
+				listItem.remove();
+				return;
+			}
 
-	listItem.addEventListener("mouseleave", () => {
-		const menuState = btnMenu.getAttribute("data-menu-state");
-
-		if (menuState !== null && menuState !== "off") {
-			toolContainer.removeChild(menuList);
-			btnMenu.setAttribute("data-menu-state", "off");
-		}
+			alert(payload.message);
+		});
 	});
 
 	menuList.append(updateTaskMenuItem, deleteTaskMenuItem, traceTaskMenuItem);
 	menuList.classList.add(
 		"absolute",
-		"right-0",
+		"right-3",
 		"bg-zinc-700",
 		"w-max",
-		"border",
-		"border-white",
 		"z-10",
+		"before:block",
+		"before:border-4",
+		"before:border-zinc-400",
+		"before:border-l-transparent",
+		"before:border-t-transparent",
 	);
 
-	updateTaskMenuItem.classList.add("border", "border-white");
-	deleteTaskMenuItem.classList.add("border", "border-white");
-	traceTaskMenuItem.classList.add("border", "border-white");
+	updateTaskMenuItem.classList.add("border", "border-zinc-400", "border-r-4");
+	deleteTaskMenuItem.classList.add("border", "border-zinc-400", "border-r-4");
+	traceTaskMenuItem.classList.add("border", "border-zinc-400", "border-r-4");
 
 	updateTaskBtn.innerText = "Update Task";
-	updateTaskBtn.classList.add("p-2");
+	updateTaskBtn.classList.add("p-2", "w-full");
 
 	deleteTaskBtn.innerText = "Delete Task";
-	deleteTaskBtn.classList.add("p-2");
+	deleteTaskBtn.classList.add("p-2", "w-full");
 
 	traceTaskBtn.innerText = "Trace Task";
-	traceTaskBtn.classList.add("p-2");
+	traceTaskBtn.classList.add("p-2", "w-full");
 
 	updateTaskMenuItem.appendChild(updateTaskBtn);
 	deleteTaskMenuItem.appendChild(deleteTaskBtn);
@@ -326,17 +350,18 @@ function renderTasks(
 
 		for (let i = 0; i < taskCount; i++) {
 			const task = tasks[i];
+			const component = createTaskComponent(task);
 			switch (task.status) {
 				case "new":
-					listNewTask.appendChild(createTaskComponent(tasks[i]));
+					listNewTask.appendChild(component);
 					break;
 
 				case "on going":
-					listOnGoingTask.appendChild(createTaskComponent(tasks[i]));
+					listOnGoingTask.appendChild(component);
 					break;
 
 				case "finish":
-					listFinishTask.appendChild(createTaskComponent(tasks[i]));
+					listFinishTask.appendChild(component);
 					break;
 
 				default:
