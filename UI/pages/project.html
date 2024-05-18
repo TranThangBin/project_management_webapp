@@ -92,7 +92,10 @@
     </header>
 
     <main class="grid grid-cols-3 items-start gap-4 p-4">
-      <dialog id="update-task-dialog" class="rounded-xl p-4">
+      <dialog
+        id="update-task-dialog"
+        class="rounded-xl p-4 shadow-lg shadow-black"
+      >
         <h2 class="mb-4 text-center text-4xl font-medium text-purple-600">
           Update task
         </h2>
@@ -103,7 +106,7 @@
             name="name"
             id="name-update"
             autocomplete="on"
-            class="rounded-md border px-2 py-1 outline-0"
+            class="rounded-md border border-black px-2 py-1 outline-0"
           />
           <label for="description-update">Description:</label>
           <textarea
@@ -111,19 +114,19 @@
             id="description-update"
             cols="30"
             rows="3"
-            class="resize-none rounded-md border px-2 py-1 outline-0"
+            class="resize-none rounded-md border border-black px-2 py-1 outline-0"
           ></textarea>
           <label for="priority_level-update">Priority:</label>
           <input
             type="number"
             name="priority_level"
             id="priority_level-update"
-            class="rounded-md border px-2 py-1 outline-0"
+            class="rounded-md border border-black px-2 py-1 outline-0"
           />
           <button
             type="button"
             title="close form"
-            id="btn-close-dialog"
+            id="btn-close-updatedialog"
             class="rounded-lg bg-red-400 p-2 text-white"
           >
             Close Form
@@ -137,6 +140,47 @@
           </button>
         </form>
       </dialog>
+
+      <dialog
+        id="trace-task-dialog"
+        class="rounded-xl p-4 shadow-lg shadow-black"
+      >
+        <h2 class="mb-4 text-center text-4xl font-medium text-purple-600">
+          Trace task
+        </h2>
+        <form id="form-trace-task" class="grid grid-cols-[auto,1fr] gap-2">
+          <label for="expected_begin-trace">Expected begin:</label>
+          <input
+            type="date"
+            name="expected_begin"
+            id="expected_begin-trace"
+            class="rounded-md border border-black px-2 py-1 outline-0"
+          />
+          <label for="expected_finish-trace">Expected finish:</label>
+          <input
+            type="date"
+            name="expected_finish"
+            id="expected_finish-trace"
+            class="rounded-md border border-black px-2 py-1 outline-0"
+          />
+          <button
+            type="button"
+            title="close form"
+            id="btn-close-tracedialog"
+            class="rounded-lg bg-red-400 p-2 text-white"
+          >
+            Close Form
+          </button>
+          <button
+            type="submit"
+            title="trace task"
+            class="rounded-lg bg-green-400 p-2 text-white"
+          >
+            Trace
+          </button>
+        </form>
+      </dialog>
+
       <section class="rounded-xl bg-black p-3 text-white">
         <div class="flex items-center justify-between">
           <h2>New</h2>

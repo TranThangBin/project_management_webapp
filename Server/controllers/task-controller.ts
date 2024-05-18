@@ -20,7 +20,11 @@ export const findAllTask: Handler = (
 		filter.status = req.query.status;
 	}
 
-	TaskModel.find(filter)
+	TaskModel.find(
+		filter,
+		{},
+		{ sort: { priority_level: -1, expected_finish: 1, expected_begin: 1 } },
+	)
 		.then((tasks) => {
 			const payload: ResponsePayload = {
 				status: "ok",
