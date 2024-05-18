@@ -9,6 +9,8 @@ import {
 
 import "/src/tailwind.css";
 
+type TaskStatus = Task["status"];
+
 const projectID = new URL(window.location.toString()).searchParams.get(
 	"project_id",
 );
@@ -61,34 +63,52 @@ const updateTaskDialog = document.querySelector(
 	"dialog#update-task-dialog",
 ) as HTMLDialogElement;
 
+const formUpdateTask = updateTaskDialog.querySelector(
+	"form#form-update-task",
+) as HTMLFormElement;
+
+const updateTaskInputs = formUpdateTask.querySelectorAll(
+	"input,textarea",
+) as NodeListOf<HTMLInputElement | HTMLTextAreaElement>;
+
 const btnCloseUpdateTask = updateTaskDialog.querySelector(
 	"button#btn-close-dialog",
 ) as HTMLButtonElement;
 
-const refreshNew = () => {
-	while (listNewTask.lastChild) {
-		listNewTask.removeChild(listNewTask.lastChild);
+const refreshStatus = (status: TaskStatus) => {
+	let taskList: HTMLUListElement | undefined;
+
+	switch (status) {
+		case "new":
+			taskList = listNewTask;
+			break;
+
+		case "on going":
+			taskList = listOnGoingTask;
+			break;
+
+		case "finish":
+			taskList = listFinishTask;
+			break;
+
+		default:
+			throw new Error("unexpected task status");
 	}
-	getAllTaskForProject(projectID, "new").then(renderTasks);
+
+	while (taskList.lastChild) {
+		taskList.removeChild(taskList.lastChild);
+	}
+
+	getAllTaskForProject(projectID, status)
+		.then(renderTasks)
+		.catch(() => alert("something went wrong"));
 };
 
-const refreshOnGoing = () => {
-	while (listOnGoingTask.lastChild) {
-		listOnGoingTask.removeChild(listOnGoingTask.lastChild);
-	}
-	getAllTaskForProject(projectID, "on going").then(renderTasks);
-};
+btnRefreshNew.addEventListener("click", () => refreshStatus("new"));
+btnRefreshOnGoing.addEventListener("click", () => refreshStatus("on going"));
+btnRefreshFinish.addEventListener("click", () => refreshStatus("finish"));
 
-const refreshFinish = () => {
-	while (listFinishTask.lastChild) {
-		listFinishTask.removeChild(listFinishTask.lastChild);
-	}
-	getAllTaskForProject(projectID, "finish").then(renderTasks);
-};
-
-btnRefreshNew.addEventListener("click", refreshNew);
-btnRefreshOnGoing.addEventListener("click", refreshOnGoing);
-btnRefreshFinish.addEventListener("click", refreshFinish);
+btnCloseUpdateTask.addEventListener("click", () => updateTaskDialog.close());
 
 formAddTask.remove();
 
@@ -102,7 +122,6 @@ btnCancel.addEventListener("click", function () {
 
 const createTaskComponent = (task: Task) => {
 	const listItem = document.createElement("li");
-	const taskTag = `${task.id}#${task.name}`;
 	const descWrapper = document.createElement("div");
 	const descContainer = document.createElement("div");
 	const toolContainer = document.createElement("div");
@@ -119,6 +138,9 @@ const createTaskComponent = (task: Task) => {
 	const updateTaskBtn = document.createElement("button");
 	const deleteTaskBtn = document.createElement("button");
 	const traceTaskBtn = document.createElement("button");
+
+	const taskTag = `${task.id}#${task.name}`;
+	const taskDesc = task.description || "No description";
 
 	let menuOn = false;
 	btnMenu.addEventListener("click", () => {
@@ -137,22 +159,72 @@ const createTaskComponent = (task: Task) => {
 		}
 	});
 
-	updateTaskBtn.addEventListener("click", () => updateTaskDialog.showModal());
-	btnCloseUpdateTask.addEventListener("click", () => updateTaskDialog.close());
+	const handleUpdateTask = function (this: HTMLFormElement, e: SubmitEvent) {
+		e.preventDefault();
+
+		const formData = new FormData(this);
+
+		const taskData: unknown = Object.fromEntries(formData);
+
+		updateTask(projectID, taskData as Task, task.id)
+			.then(({ status, data, message }) => {
+				if (status === "ok" && data !== null) {
+					const { id, name, description } = data;
+
+					const newTag = `${id}#${name}`;
+					const newDesc = description || "No description";
+
+					listItem.innerText.replace(taskTag, newTag);
+					descContainer.innerText = newDesc;
+
+					updateTaskDialog.close();
+
+					task = data;
+
+					return;
+				}
+
+				alert(message);
+			})
+			.catch(() => alert("something went wrong"));
+	};
+
+	const handleCloseUpdateDialog = function (this: HTMLDialogElement) {
+		formUpdateTask.reset();
+		formUpdateTask.removeEventListener("submit", handleUpdateTask);
+		this.removeEventListener("close", handleCloseUpdateDialog);
+	};
+
+	updateTaskBtn.addEventListener("click", () => {
+		updateTaskDialog.showModal();
+
+		formUpdateTask.addEventListener("submit", handleUpdateTask);
+		updateTaskDialog.addEventListener("close", handleCloseUpdateDialog);
+
+		const inputCount = updateTaskInputs.length;
+
+		for (let i = 0; i < inputCount; i++) {
+			updateTaskInputs[i].value = task[
+				updateTaskInputs[i].name as keyof Task
+			] as string;
+		}
+	});
 
 	deleteTaskMenuItem.addEventListener("click", () => {
 		if (!confirm(taskTag + "\nare you sure to delete this task")) {
 			return;
 		}
 
-		deleteTask(projectID, task.id).then((payload) => {
-			if (payload.status === "ok" && payload.data) {
-				listItem.remove();
-				return;
-			}
+		deleteTask(projectID, task.id)
+			.then((payload) => {
+				if (payload.status === "ok" && payload.data) {
+					listItem.remove();
+					return;
+				}
 
-			alert(payload.message);
-		});
+				alert(payload.message);
+			})
+			.catch(() => alert("something went wrong"));
 	});
 
 	menuList.append(updateTaskMenuItem, deleteTaskMenuItem, traceTaskMenuItem);
@@ -164,6 +236,7 @@ const createTaskComponent = (task: Task) => {
 		"z-10",
 		"before:block",
 		"before:border-4",
+		"before:border-t-[0.5rem]",
 		"before:border-zinc-400",
 		"before:border-l-transparent",
 		"before:border-t-transparent",
@@ -208,7 +281,7 @@ const createTaskComponent = (task: Task) => {
 		"group-hover:grid-rows-[1fr]",
 	);
 
-	descContainer.innerText = task.description || "No description";
+	descContainer.innerText = taskDesc;
 	descContainer.classList.add("min-h-0", "text-gray-400");
 
 	toolContainer.classList.add(
@@ -272,44 +345,26 @@ const createTaskComponent = (task: Task) => {
 			break;
 
 		default:
-			break;
+			throw new Error("unexpected task status");
 	}
 
-	btnToNew.addEventListener("click", () => {
-		updateTask(projectID, { status: "new" }, task.id).then((payload) => {
-			if (payload.status === "ok" && payload.data !== null) {
-				refreshNew();
-				listItem.remove();
-				return;
-			}
+	const updateTaskStatus = (status: TaskStatus) => {
+		updateTask(projectID, { status }, task.id)
+			.then((payload) => {
+				if (payload.status === "ok" && payload.data !== null) {
+					refreshStatus(status);
+					listItem.remove();
+					return;
+				}
 
-			alert(payload.message);
-		});
-	});
+				alert(payload.message);
+			})
+			.catch(() => alert("something went wrong"));
+	};
 
-	btnToOnGoing.addEventListener("click", () => {
-		updateTask(projectID, { status: "on going" }, task.id).then((payload) => {
-			if (payload.status === "ok" && payload.data !== null) {
-				refreshOnGoing();
-				listItem.remove();
-				return;
-			}
-
-			alert(payload.message);
-		});
-	});
-
-	btnToFinish.addEventListener("click", () => {
-		updateTask(projectID, { status: "finish" }, task.id).then((payload) => {
-			if (payload.status === "ok" && payload.data !== null) {
-				refreshFinish();
-				listItem.remove();
-				return;
-			}
-
-			alert(payload.message);
-		});
-	});
+	btnToNew.addEventListener("click", () => updateTaskStatus("new"));
+	btnToOnGoing.addEventListener("click", () => updateTaskStatus("on going"));
+	btnToFinish.addEventListener("click", () => updateTaskStatus("finish"));
 
 	listItem.append(descWrapper, toolContainer);
 
@@ -337,7 +392,9 @@ formAddTask.addEventListener("submit", function (e) {
 });
 
 document.addEventListener("DOMContentLoaded", () =>
-	getAllTaskForProject(projectID).then(renderTasks),
+	getAllTaskForProject(projectID)
+		.then(renderTasks)
+		.catch(() => alert("something went wrong")),
 );
 
 function renderTasks(

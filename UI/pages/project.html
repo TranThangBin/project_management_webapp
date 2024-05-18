@@ -92,27 +92,48 @@
     </header>
 
     <main class="grid grid-cols-3 items-start gap-4 p-4">
-      <dialog id="update-task-dialog">
-        <form id="form-update-task">
-          <label>
-            Name
-            <input type="text" name="name" id="name-update" autocomplete="on" />
-          </label>
-          <label
-            >Description
-            <input type="text" name="description" id="description-update" />
-          </label>
-          <label>
-            Priority
-            <input
-              type="number"
-              name="priority_level"
-              id="priority_level-update"
-            />
-          </label>
-          <button type="submit" title="update task">Update</button>
-          <button type="button" title="close form" id="btn-close-dialog">
+      <dialog id="update-task-dialog" class="rounded-xl p-4">
+        <h2 class="mb-4 text-center text-4xl font-medium text-purple-600">
+          Update task
+        </h2>
+        <form id="form-update-task" class="grid grid-cols-[auto,1fr] gap-2">
+          <label for="name-update">Name:</label>
+          <input
+            type="text"
+            name="name"
+            id="name-update"
+            autocomplete="on"
+            class="rounded-md border px-2 py-1 outline-0"
+          />
+          <label for="description-update">Description:</label>
+          <textarea
+            name="description"
+            id="description-update"
+            cols="30"
+            rows="3"
+            class="resize-none rounded-md border px-2 py-1 outline-0"
+          ></textarea>
+          <label for="priority_level-update">Priority:</label>
+          <input
+            type="number"
+            name="priority_level"
+            id="priority_level-update"
+            class="rounded-md border px-2 py-1 outline-0"
+          />
+          <button
+            type="button"
+            title="close form"
+            id="btn-close-dialog"
+            class="rounded-lg bg-red-400 p-2 text-white"
+          >
             Close Form
+          </button>
+          <button
+            type="submit"
+            title="update task"
+            class="rounded-lg bg-green-400 p-2 text-white"
+          >
+            Update
           </button>
         </form>
       </dialog>
@@ -145,13 +166,14 @@
             class="w-full rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
           />
 
-          <input
-            type="text"
+          <textarea
             name="description"
             id="description-add"
+            cols="30"
+            rows="3"
             placeholder="Task description"
-            class="w-full rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
-          />
+            class="w-full resize-none rounded-md border border-zinc-500 bg-zinc-700 px-2 py-1 outline-0"
+          ></textarea>
 
           <input
             type="number"
