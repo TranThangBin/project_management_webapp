@@ -20,11 +20,32 @@ export const findAllTask: Handler = (
 		filter.status = req.query.status;
 	}
 
-	TaskModel.find(
-		filter,
-		{},
-		{ sort: { priority_level: -1, expected_finish: 1, expected_begin: 1 } },
-	)
+	TaskModel.aggregate([
+		{ $match: filter },
+		{
+			$addFields: {
+				expected_begin_empty: {
+					$or: [
+						{ $eq: ["$expected_begin", null] },
+						{ $eq: [{ $type: "$expected_begin" }, "missing"] },
+					],
+				},
+				expected_finish_empty: {
+					$or: [
+						{ $eq: ["$expected_finish", null] },
+						{ $eq: [{ $type: "$expected_finish" }, "missing"] },
+					],
+				},
+			},
+		},
+	])
+		.sort({
+			priority_level: -1,
+			expected_finish_empty: 1,
+			expected_begin_empty: 1,
+			expected_finish: 1,
+			expected_begin: 1,
+		})
 		.then((tasks) => {
 			const payload: ResponsePayload = {
 				status: "ok",
