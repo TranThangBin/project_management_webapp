@@ -3,7 +3,16 @@ import type { ResponsePayload } from "./response";
 import { ProjectModel } from "../models/project-model";
 
 export const findAllProject: Handler = (_, res, next) => {
-	ProjectModel.find({})
+	ProjectModel.aggregate()
+		.addFields({
+			estimated_finish_empty: {
+				$or: [
+					{ $eq: ["$estimated_finish", null] },
+					{ $eq: [{ $type: "$estimated_finish" }, "missing"] },
+				],
+			},
+		})
+		.sort({ status: -1, estimated_finish_empty: 1, estimated_finish: 1 })
 		.then((projects) => {
 			const payload: ResponsePayload = {
 				status: "ok",

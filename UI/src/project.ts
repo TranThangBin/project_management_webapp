@@ -430,6 +430,8 @@ formAddTask.addEventListener("submit", function (e) {
 		});
 });
 
+document.querySelector("h1#project-id")!.textContent = projectID;
+
 document.addEventListener("DOMContentLoaded", () =>
 	getAllTaskForProject(projectID)
 		.then(renderTasks)

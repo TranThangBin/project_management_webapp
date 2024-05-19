@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Model, Error } from "mongoose";
 import { applyCreatedAt, applyID, applyStatus } from "./utils";
 import { TaskModel } from "./task-model";
 
@@ -32,6 +32,24 @@ const ProjectSchema = new Schema<Project>({
 ProjectSchema.pre("save", applyID<Project>("PRJ"));
 ProjectSchema.pre("save", applyCreatedAt<Project>());
 ProjectSchema.pre("save", applyStatus<Project>());
+ProjectSchema.pre("save", function (next) {
+	if (!this.isNew) {
+		return next();
+	}
+
+	const Model = this.constructor as Model<Project>;
+
+	Model.countDocuments()
+		.then((count) => {
+			if (count >= 5) {
+				const projectLimitErr = new Error.ValidationError();
+				projectLimitErr.message = "you've reach the projects limit";
+				next(projectLimitErr);
+			}
+			next();
+		})
+		.catch(next);
+});
 ProjectSchema.pre("findOneAndDelete", function (next) {
 	const filter = this.getQuery() as Pick<Project, "id">;
 

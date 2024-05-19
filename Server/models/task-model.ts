@@ -46,6 +46,10 @@ TaskSchema.pre("save", applyID<Task>("TSK"));
 TaskSchema.pre("save", applyCreatedAt<Task>());
 TaskSchema.pre("save", applyStatus<Task>());
 TaskSchema.pre("save", function (next) {
+	if (!this.isNew) {
+		return next();
+	}
+
 	ProjectModel.findOne({ id: this.project_id })
 		.then((project) => {
 			if (project?.status === "new") {
