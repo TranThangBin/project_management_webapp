@@ -84,7 +84,10 @@ const refreshStatus = (status: TaskStatus) => {
 
 	getAllTaskForProject(projectID, status)
 		.then(renderTasks)
-		.catch(() => alert("something went wrong"));
+		.catch((err) => {
+			alert("something went wrong");
+			console.error(err);
+		});
 };
 
 btnRefreshNew.addEventListener("click", () => refreshStatus("new"));
@@ -170,7 +173,10 @@ const createTaskComponent = (task: Task) => {
 
 				alert(message);
 			})
-			.catch(() => alert("something went wrong"));
+			.catch((err) => {
+				alert("something went wrong");
+				console.error(err);
+			});
 	};
 
 	const handleCloseUpdateDialog = function (this: HTMLDialogElement) {
@@ -211,7 +217,10 @@ const createTaskComponent = (task: Task) => {
 
 				alert(message);
 			})
-			.catch(() => alert("something went wrong"));
+			.catch((err) => {
+				alert("something went wrong");
+				console.error(err);
+			});
 	};
 
 	const handleCloseTraceDialog = function (this: HTMLDialogElement) {
@@ -251,7 +260,10 @@ const createTaskComponent = (task: Task) => {
 
 				alert(message);
 			})
-			.catch(() => alert("something went wrong"));
+			.catch((err) => {
+				alert("something went wrong");
+				console.error(err);
+			});
 	});
 
 	menuList.append(updateTaskMenuItem, deleteTaskMenuItem, traceTaskMenuItem);
@@ -388,7 +400,10 @@ const createTaskComponent = (task: Task) => {
 
 				alert(message);
 			})
-			.catch(() => alert("something went wrong"));
+			.catch((err) => {
+				alert("something went wrong");
+				console.error(err);
+			});
 	};
 
 	btnToNew.addEventListener("click", () => handleUpdateTaskStatus("new"));
@@ -419,13 +434,19 @@ formAddTask.addEventListener("submit", function (e) {
 
 			alert(message);
 		})
-		.catch(() => alert("something went wrong"));
+		.catch((err) => {
+			alert("something went wrong");
+			console.error(err);
+		});
 });
 
 document.addEventListener("DOMContentLoaded", () =>
 	getAllTaskForProject(projectID)
 		.then(renderTasks)
-		.catch(() => alert("something went wrong")),
+		.catch((err) => {
+			alert("something went wrong");
+			console.error(err);
+		}),
 );
 
 function renderTasks({

@@ -25,11 +25,15 @@ const formUpdateProject = updateProjectDialog.querySelector(
 
 const updateProjectInputs = formUpdateProject.querySelectorAll("input");
 
+const updateProjectInputCount = updateProjectInputs.length;
+
 const projectList = document.querySelector(
 	"ul#project-list",
 ) as HTMLUListElement;
 
-document.addEventListener("DOMContentLoaded", renderAllProjects);
+const projectElemMap = new Map<string, HTMLLIElement>();
+
+document.addEventListener("DOMContentLoaded", renderProjects);
 
 document
 	.querySelector("button#btn-open-form")!
@@ -43,12 +47,9 @@ document
 	.querySelector("button#btn-close-updateform")!
 	.addEventListener("click", () => updateProjectDialog.close());
 
-document.querySelector("button#btn-refresh")!.addEventListener("click", () => {
-	while (projectList.lastChild) {
-		projectList.removeChild(projectList.lastChild);
-	}
-	renderAllProjects();
-});
+document
+	.querySelector("button#btn-refresh")!
+	.addEventListener("click", () => renderProjects());
 
 formNewProject.addEventListener("reset", function () {
 	this.querySelector("input")!.focus();
@@ -65,29 +66,31 @@ formNewProject.addEventListener("submit", function (e) {
 		.then(({ status, data, message }) => {
 			if (status === "ok" && data !== null) {
 				this.reset();
-				projectList.appendChild(createProjectComponent(data));
-				return newProjectDialog.close();
+				renderProject(data);
+				newProjectDialog.close();
+				return;
 			}
 
 			alert(message);
 		})
-		.catch(() => alert("something went wrong"));
+		.catch((err) => {
+			alert("something went wrong");
+			console.error(err);
+		});
 });
 
 formUpdateProject.addEventListener("reset", function () {
 	this.querySelector("input")!.focus();
 });
 
-function renderAllProjects() {
+function renderProjects() {
 	getAllProject()
 		.then(({ status, data, message }) => {
 			if (status === "ok" && data !== null) {
-				const projects = data;
-
-				const projectCount = projects.length;
+				const projectCount = data.length;
 
 				for (let i = 0; i < projectCount; i++) {
-					projectList.appendChild(createProjectComponent(projects[i]));
+					renderProject(data[i]);
 				}
 
 				return;
@@ -95,7 +98,21 @@ function renderAllProjects() {
 
 			alert(message);
 		})
-		.catch(() => alert("something went wrong"));
+		.catch((err) => {
+			alert("something went wrong");
+			console.error(err);
+		});
+}
+
+function renderProject(project: Project) {
+	let projectComponent = projectElemMap.get(project.id);
+
+	if (projectComponent === undefined) {
+		projectComponent = createProjectComponent(project);
+		projectElemMap.set(project.id, projectComponent);
+	}
+
+	projectList.appendChild(projectComponent);
 }
 
 function createProjectComponent(project: Project) {
@@ -148,25 +165,48 @@ function createProjectComponent(project: Project) {
 			deleteProject(project.id)
 				.then(({ status, message }) => {
 					if (status === "ok") {
-						return listItem.remove();
+						listItem.remove();
+						projectElemMap.delete(project.id);
+						return;
 					}
 
 					alert(message);
 				})
-				.catch(() => alert("something went wrong"));
+				.catch((err) => {
+					alert("something went wrong");
+					console.error(err);
+				});
 		}
 	});
 
 	updateProjectBtn.addEventListener("click", () => {
 		updateProjectDialog.showModal();
 
+		const handleUpdateProject = createUpdateProjectHandler(
+			project.id,
+			(data) => {
+				const { name, description } = data;
+
+				const newTag = `${project.id}#${name}`;
+				const newDesc = description || "No description";
+
+				projectNameElem.innerText = projectNameElem.title = newTag;
+				projectDescElem.innerText = projectDescElem.title = newDesc;
+
+				updateProjectDialog.close();
+
+				project = data;
+			},
+		);
+
 		formUpdateProject.addEventListener("submit", handleUpdateProject);
 
-		updateProjectDialog.addEventListener("close", handleCloseUpdateDialog);
+		updateProjectDialog.addEventListener(
+			"close",
+			createDialogCloseHandler(handleUpdateProject),
+		);
 
-		const inputCount = updateProjectInputs.length;
-
-		for (let i = 0; i < inputCount; i++) {
+		for (let i = 0; i < updateProjectInputCount; i++) {
 			if (
 				updateProjectInputs[i].name === "estimated_finish" &&
 				project.estimated_finish
@@ -184,40 +224,43 @@ function createProjectComponent(project: Project) {
 	});
 
 	return listItem;
+}
 
-	function handleUpdateProject(this: HTMLFormElement, e: SubmitEvent) {
+function createUpdateProjectHandler(
+	projectId: string,
+	afterUpdate: (project: Project) => void,
+) {
+	return function (this: HTMLFormElement, e: SubmitEvent) {
 		e.preventDefault();
 
 		const formData = new FormData(this);
 
 		const projectData: unknown = Object.fromEntries(formData);
 
-		updateProject(project.id, projectData as Project)
+		updateProject(projectId, projectData as Project)
 			.then(({ status, data, message }) => {
 				if (status === "ok" && data !== null) {
-					const { name, description } = data;
-
-					const newTag = `${project.id}#${name}`;
-					const newDesc = description || "No description";
-
-					projectNameElem.innerText = projectNameElem.title = newTag;
-					projectDescElem.innerText = projectDescElem.title = newDesc;
-
-					updateProjectDialog.close();
-
-					project = data;
-
+					afterUpdate(data);
 					return;
 				}
 
 				alert(message);
 			})
-			.catch(() => alert("something went wrong"));
-	}
+			.catch((err) => {
+				alert("something went wrong");
+				console.error(err);
+			});
+	};
+}
+
+function createDialogCloseHandler(
+	updateProjectHandler: (this: HTMLFormElement, e: SubmitEvent) => void,
+) {
+	return handleCloseUpdateDialog;
 
 	function handleCloseUpdateDialog(this: HTMLDialogElement) {
 		formUpdateProject.reset();
-		formUpdateProject.removeEventListener("submit", handleUpdateProject);
+		formUpdateProject.removeEventListener("submit", updateProjectHandler);
 		this.removeEventListener("close", handleCloseUpdateDialog);
 	}
 }
