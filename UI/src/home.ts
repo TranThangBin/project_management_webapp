@@ -241,6 +241,7 @@ function createUpdateProjectHandler(
 			.then(({ status, data, message }) => {
 				if (status === "ok" && data !== null) {
 					afterUpdate(data);
+					renderProjects();
 					return;
 				}
 

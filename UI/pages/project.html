@@ -184,7 +184,9 @@
         </form>
       </dialog>
 
-      <section class="rounded-xl bg-black p-3 text-white">
+      <section
+        class="grid min-h-[75vh] grid-rows-[auto,1fr,auto] overflow-auto rounded-xl bg-black p-3 text-white"
+      >
         <div class="flex items-center justify-between">
           <h2>New</h2>
           <button
@@ -196,7 +198,7 @@
         </div>
 
         <ul
-          class="flex max-h-[60vh] flex-col items-center gap-4 overflow-auto py-4"
+          class="flex flex-col items-center gap-4 py-4"
           id="list-new-task"
         ></ul>
 
@@ -255,7 +257,9 @@
           <i class="fa-solid fa-plus"></i> Add task
         </button>
       </section>
-      <section class="rounded-xl bg-black p-3 text-white">
+      <section
+        class="min-h-[75vh] overflow-auto rounded-xl bg-black p-3 text-white"
+      >
         <div class="flex items-center justify-between">
           <h2>On Going</h2>
           <button
@@ -267,12 +271,14 @@
         </div>
 
         <ul
-          class="flex max-h-[60vh] flex-col items-center gap-4 overflow-auto py-4"
+          class="flex flex-col items-center gap-4 py-4"
           id="list-on-going"
         ></ul>
       </section>
 
-      <section class="rounded-xl bg-black p-3 text-white">
+      <section
+        class="min-h-[75vh] overflow-auto rounded-xl bg-black p-3 text-white"
+      >
         <div class="flex items-center justify-between">
           <h2>Finish</h2>
           <button
@@ -283,10 +289,7 @@
           </button>
         </div>
 
-        <ul
-          class="flex max-h-[60vh] flex-col items-center gap-4 overflow-auto py-4"
-          id="list-finish"
-        ></ul>
+        <ul class="flex flex-col items-center gap-4 py-4" id="list-finish"></ul>
       </section>
     </main>
   </body>
